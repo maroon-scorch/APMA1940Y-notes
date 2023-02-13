@@ -757,7 +757,116 @@ For covenience, we also want $h(s)$ to be compactly supported. So we want someth
 \[\includegraphics[width=0.5\textwidth]{Figures/lec8-2}\]
 Which looks like the shape of a wavelet!
 
+\newpage
+\section{Lecture 9 - 2/13/2023}
+
+\subsection{Continuous Wavelet Transform}
+At the end of the last class, we claim up with the following
+\begin{definition}
+    Let $\psi$ be a real-valued function with $\psi(t)$, $|t|^{1/2} \psi(t)$, and $t \psi(t)$ all integrable with finite energy (ie. square integrable), and that $\widehat{\psi}(0) = 0$ (note this is true if and only if $\int_{-\infty}^\infty \psi(t) dt = 0$). Then the \textbf{continuous wavelet transform (CWT)} of a signal $f(t)$ is
+    \[(W_\psi f)(\alpha, a) = \frac{1}{\sqrt{a}} \int_{-\infty}^\infty f(t) \psi(\frac{\alpha - t}{a}) dt,\ \alpha \in \Rbb, a > 0\]
+    The landpass filter $\psi$ is called the ``analyzing wavelet".
+\end{definition}
+
+\begin{question}
+    What are the Time-Frequency properties of this?
+\end{question}
+
+In the time domain, we get a window around $t = \alpha$ and radius is given by
+\begin{align*}
+    \Delta_\psi^2 &= \int_{-\infty}^\infty t^2 \psi(\frac{\alpha - t}{a})^2 dt / \int_{-\infty}^\infty \psi(\frac{\alpha - t}{a})^2 dt\\
+    &= a^2 \int_{-\infty}^\infty s^2 \psi(s)^2 ds / \int_{-\infty}^\infty \psi(s)^2 ds \tag*{Let $s = (\alpha - t)/a$}\\
+    &= (a \Delta_\psi)^2
+\end{align*}
+So the time window is $(\alpha - a \Delta_\psi, \alpha + a \Delta_\psi)$.\\
+
+In the frequency domain, we use Parserval's Identity to write $W_\psi f$ in terms of $\widehat{f}(\omega)$. To do this, we need the Fourier Transform of $t \mapsto \psi(\frac{\alpha - t}{a})$. Using techniques in Homework $1$, we get
+\[\int_{-\infty}^\infty e^{-i\omega t} \psi(\frac{\alpha - t}{a}) dt = a e^{-i\omega \alpha} \overline{\widehat{\psi}(a\omega)}\]
+
+Hence, by Parserval's Identity, we have that
+\[(W_\psi f)(\alpha, a) = \frac{\sqrt{a}}{2\pi} \int_{-\infty}^\infty \widehat{f}(\omega) e^{i \omega \alpha} \widehat{\psi}(a\omega) d\omega \]
+This shows that the frequency window is centered on $\omega = 0$ and has radius, with a very similar calculation as before
+\begin{align*}
+    \widehat{\Delta}^2_{\psi, a} &= \frac{1}{a^2} \widehat{\Delta}_\psi^2
+\end{align*}
+Hence we have the frequency window on $(-\frac{1}{a} \widehat{\Delta}_\psi^2, + \frac{1}{a} \widehat{\Delta}_\psi^2)$.\\
+
+Our time frequency window looks like:
+\[\includegraphics[width=0.5\textwidth]{Figures/lec9-p1.png}\]
+with area being $\frac{2}{a} \Delta_\psi (2a \widehat{\Delta}_\psi) = 4 \Delta_\psi \widehat{\Delta}_\psi \geq 2$. We didn't change the area of the window, but we can change the aspect ratio by varying the value of $a$.\\
+
+The flexibility to vary $a$ allows us to change the scale at which resolve time and/or frequency. In a sense, $a$ is similar to a ``zoom factor" on a microscope that allows us to focus in a local feature.
+
+\begin{definition}
+    A band-pass filter $\psi(t)$ is a filter with dc component being $0$, ie $\int_{-\infty}^\infty \psi(t) dt = 0$
+\end{definition}
+
+\begin{example}
+    The Haar Wavelet is
+\[\includegraphics[width=0.3\textwidth]{Figures/lec9-p2.png}\]
+    This is in some sense the simplest wavelet. It is locally supported, band-pass, etc.
+\end{example}
 
 
+\subsection{Smoothness of Functions}
+ The actual value of the filter function doesn't matter, what we care about more is how the function varies over time! This concerns with the ``smoothness" of a given function $f$, ie. we want to know where it is not smooth.
+
+ \begin{question}
+     How do we measure smoothness?
+ \end{question}
+
+\begin{definition}
+    We say $f$ is Lipschitz-continuous at $s$ with exponent $\mu$ if there exists $K < \infty$ and $\mu \in (0, 1)$
+    \[|f(s) - f(t)| \leq K |s - t|^\mu \]
+    , for $t$ close to $s$. The idea here is that the larger $\mu$ is, the more ``differentiable" the function is.
+\end{definition}
+
+\begin{question}
+    Can we figure out $s$ and $\mu$ by looking at $\widehat{f}(\omega)$ is?
+\end{question}
+
+\begin{theorem}
+    If $\widehat{f}$ satisfies $\int_{-\infty}^\infty |\widehat{f}(\omega)| (1 + |\omega|^\mu) d\omega < \infty$, then $f$ is Lipschitz continuous every where with exponent $\mu$.
+\end{theorem}
+
+\begin{proof}
+    Let's consider $\frac{|f(s) - f(t)|}{|s - t|^\mu}$ and figure out how large $\mu$ can be, so
+    \begin{align*}
+        f(s) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f(\omega)} e^{-i\omega s} d\omega\\
+        f(t) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f(\omega)} e^{-i\omega t} d\omega\\
+        f(s) - f(t) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f}(\omega) (e^{i\omega s} - e^{i\omega t}) d\omega
+    \end{align*}
+    We observe that
+    \begin{align*}
+        |e^{i\omega s} - e^{i \omega t}| &\leq 2 \tag*{By Triangle's Inequality, this is best bound when $\omega >> 0$} 
+    \end{align*}
+    On the other hand, we have that
+    \begin{align*}
+        |e^{i\omega s} - e^{i \omega t}|  &= |[e^{i \omega \theta}_t^s]|\\
+        &= |\int_{t}^s i \omega e^{i \omega \theta} d\theta|\\
+        &\leq |\int_t^s d\theta |\omega||\\
+        &\leq |\omega| \cdot |s - t| \tag*{Good when $s$ is close to $t$ and $\omega$ is small}
+    \end{align*}
+    Now, we have that
+    \[        \frac{|e^{i\omega s} - e^{i \omega t}|}{|s - t|^\mu} \leq \begin{cases}
+            2|s - t|^{-\mu},\\
+            |\omega| |s - t|^{1-\mu}
+        \end{cases}\]
+    If $|s - t| > |\omega|^{-1}$, then $|s - t|^{-1} < |\omega|$, hence $|s - t|^{-\mu} < |\omega|^\mu$.\\\\
+    If $|s - t| < |\omega|^{-1}$, then $|s - t|^{1- \mu} < |\omega|^{\mu - 1}$, hence $|\omega| |s - t|^{1-\mu} < |\omega|^\mu$, thus we always have that
+    \[ \frac{|e^{i\omega s} - e^{i \omega t}|}{|s - t|^\mu} \leq  C |\omega|^\mu\]
+    for some constant $C$, hence we have that
+    \begin{align*}
+    \frac{|f(s) - f(t)|}{|s - t|^\mu} &\leq \frac{1}{2\pi} \int_{-\infty}^\infty |\widehat{f}(\omega)| \cdot \frac{|e^{i\omega s} - e^{i\omega t}|}{|s - t|^\mu} d\omega\\
+    &\leq \frac{C}{2\pi} \int_{-\infty}^\infty |\widehat{f}(\omega)| (1 + |\omega|^\mu) d\omega\\
+    &< \infty
+    \end{align*}
+\end{proof}
+
+Good news - looking at the decay of $|\widehat{f}(\omega)|$ as $|\omega| \to \infty$ tells us about the smoothness of $f$.\\\\
+
+Bad news - this tells us nothing about the local smoothness, ie. how doe sthe smooth vary with respect to position! ($\mu$ is the lower bound on the smoothness of all the points).\\\\
+
+Recall that for $t \mapsto f(t - \alpha)$, the Fourier transform is $\omega \mapsto e^{i \alpha \omega} \widehat{f}(\omega)$, but the fourier transform DOES NOT translate anything, so its modulus is the same as $|\widehat{f}(\omega)|$. Hence no matter how we try to tweak around the theorem, we won't have the local information.
 
 \end{document}
