@@ -869,4 +869,160 @@ Bad news - this tells us nothing about the local smoothness, ie. how doe sthe sm
 
 Recall that for $t \mapsto f(t - \alpha)$, the Fourier transform is $\omega \mapsto e^{i \alpha \omega} \widehat{f}(\omega)$, but the fourier transform DOES NOT translate anything, so its modulus is the same as $|\widehat{f}(\omega)|$. Hence no matter how we try to tweak around the theorem, we won't have the local information.
 
+\newpage
+\section{Lecture 10 - 2/15/2023}
+
+Recall that we have established, last time, that:
+\begin{itemize}
+    \item Locally Lipschitz - $f$ is locally Lipschistz at $\alpha$ with exponent $\mu$ if
+    \[|f(\alpha) - f(t)| \leq K|\alpha - t|^\mu\]
+    where $\mu$ indicates/measures how smooth $f$ is at $\alpha$
+    \item Can we deduce $\mu$ without looking directly at $f(t)$ and $t \in \Rbb$
+    \item We proved last lecture that:
+\begin{theorem}
+    If $\widehat{f}$ satisfies
+    \[\int_{-\infty}^\infty |\widehat{f}(\omega)| (1 + |\omega|^\mu) d\omega < \infty\]
+    then $f$ is globally Lipschitz with exponent $\mu$.
+\end{theorem}
+    \item As a corollary, $f(t) = \frac{1}{2\pi} \int_{-\infty}^\infty e^{i\omega t} \widehat{f}(\omega) d\omega$ implies that
+    \[|f(t)| \leq \frac{1}{2\pi} \int_{-\infty}^\infty |\widehat{f}(\omega)| d\omega < \infty\]
+    So the $1 +$``something" means $f$ is a well-defined behavior. However, this theorem only tells us the \textbf{global $\mu$}, but some parts of $f$ might do better than this global $\mu$. This means we have to analyze the behaviors of $f$ more locally.
+\end{itemize}
+
+\begin{question}
+    Can we find a better way to identify $\mu$ and hopefully how smooth this is at $\alpha$?
+\end{question}
+
+Consider the Lipschitz condition, 
+\[|f(\alpha) - f(t)| \leq K |\alpha - t|^\mu\]
+Let's write $t = \alpha - as$ for some $a > 0$ and $s$, then we have that
+\[|f(\alpha) - f(\alpha - as)| \leq K a^\mu |s|^\mu\]
+Suppose we scale $a \mapsto a/2$, then the $K a^\mu |s|^\mu$ becomes $K a^\mu |s|^\mu/2^\mu$. This means that we can interpret Lipschitz as a scaling relation where $\mu$ measures the relative change on $f$ when the arguments get closer (recall $0 < \mu < 1$).\\
+
+This suggests that by varying ``$a$", we should be able to detect the value of $\mu$ when we examine the change in $f$.\\
+
+Let's recall the continuous wavelet transform:
+\[(W_h f)(\alpha, a) = \frac{1}{\sqrt{a}} \int_{-\infty}^\infty f(t) h(\frac{\alpha - t}{a}) dt\]
+We can interpret $a$ as a ``zoom" or ``scale" factor, and $W_h f$ is the response to the scaling. We claim it is plausible that we can use the CWT to identity $\mu$!\\
+
+We will now make this assertion more precise:
+\begin{align*}
+    (W_h f)(\alpha, a) &= \frac{1}{\sqrt{a}} \int_{-\infty}^\infty f(s) h(\frac{\alpha - s}{a}) ds\\
+    &= \sqrt{a} \int_{-\infty}^\infty f(\alpha - at) h(t) dt \tag*{Let $t = \frac{\alpha - s}{a}$}
+\end{align*}
+When we change $a \mapsto a/2$, is there a $\mu$-dependent response above? There's no apparent behavior that depends on $\mu$, the scalar doesn't matter, $f(\alpha - at)$ converges to $f(\alpha)$, but this has nothing to do with $\mu$.\\
+
+But, we recall in the Lipschitz condition, we are really comparing $|f(\alpha) - f(\alpha - at)|$, can we introduce a $f(\alpha)$ in here? Indeed, let we assume that $\int_{-\infty}^\infty h(t) dt = 0$, then
+\[(W_h f)(\alpha, a) = \sqrt{a} \int_{-\infty}^\infty [f(\alpha - at) - f(\alpha) + f(\alpha)] h(t) dt = \sqrt{a} \int_{-\infty}^\infty [f(\alpha - at) - f(\alpha)] h(t) dt + 0  \]
+
+Estimate using Lipschitz, 
+\begin{align*}
+    |W_h f(\alpha, a)| &\leq \sqrt{a} \int_{-\infty}^\infty |f(\alpha - at) - f(\alpha)| |h(t)| dt\\
+    &\leq \sqrt{a} \int_{-\infty}^\infty K|at|^\mu |h(t)|\ dt \tag*{Lipschitz Continuity}\\
+    &= a^{1/2 + \mu} K \int_{-\infty}^\infty |t|^\mu |h(t)|\ dt
+\end{align*}
+This suggests that we can detect $\mu$ locally by seeing how the Wavelet transform behaves with ``$a$"!
+
+\begin{example}
+    Consider the function $f(t) = |t|$, this is not smooth at $t = 0$. We see that
+    \[|f(t) - f(s)| = ||t| - |s|| \leq |t - s|^\mu\]
+    The highest value of $\mu$ should be $1$! Because this is just the reverse triangle inequality. Let's consider
+    \begin{enumerate}
+        \item $h(t) = e^{-t^2/2}$, then
+        \begin{align*}
+            (W_h f)(0, a) &= \sqrt{a} \int_{-\infty}^\infty |\alpha - at| e^{-t^2/2} dt
+        \end{align*}
+        There's no $\mu$-dependent response here... This is no good because $h(t)$ is not an analyzing wavelet! ($\int_{-\infty}^\infty h(t) dt \neq 0$)
+        \item Let $h(t)$ be the Haar wavelet:
+        \[\includegraphics[width=0.3\textwidth]{Figures/lec10-p1.png}\]
+        and we have that
+        \begin{align*}
+            (W_h f)(0, a) &= \sqrt{a} \int_{-\infty}^\infty h(t) |at| dt\\
+            &= a^{3/2} \int_{-\infty}^\infty |t| h(t) dt
+        \end{align*}
+        This varies as $a^{3/2} = a^{1/2 + 1}$, BUT $\int_{-\infty}^\infty |t| h(t) dt = 0$, so this actually doesn't change as you change $a$. Hence this is not very useful. But we can still look at $(W_h f)(\alpha, a)$ with $\alpha \approx 0$.
+        \item Derivative Gaussian Wavelet - this is $h(t) = - \frac{d}{dt} e^{-t^2/2} = t e^{-t^2/2}$, which graphically:
+        \[\includegraphics[width=0.3\textwidth]{Figures/lec10-p2.png}\]
+        Unfortunately, this has the same problem as
+        \[(W_h f)(0, a) = a^{3/2} \cdot 0 = 0\]
+        \item Let's consider $h(t) = \frac{d^2}{dt^2}(e^{-t^2/2}) = (1 - t^2) e^{-t^2/2}$, this is called the ``Mexican Hat Wavelet", whose picture is given above.
+        We have that
+        \[(W_h f)(0, a) = \sqrt{a} \int_{-\infty}^\infty |t| h(t) dt = -2 a^{3/2}\]
+        THis does respond to $a^{1/2 + \mu}$! We also observe that
+        \[(W_h f)(\alpha, a) = -2 a^{3/2} e^{-\alpha^2/(2a^2)}\]
+        Plotting $\alpha$ against $a > 0$, recall that $e^{-\alpha^2 /2a^2} \approx 0$ when $|\alpha/\sqrt{2a}| \geq 6$
+        \[\includegraphics[width=0.3\textwidth]{Figures/lec10-p4.png}\]
+        This points to where the singularity is, the rate of increase around the singularity is how bad the singularity is.
+    \end{enumerate}
+\end{example}
+
+\newpage
+\section{Lecture 11 - 2/17/2023}
+
+\subsection{Higher Moments}
+We recall that last lecture, we obtained the following two equivalent formulation of the Continuous Wavelet Transform:
+\begin{align*}
+    (W_h f)(\alpha, a) &= \frac{1}{\sqrt{a}} \int_{-\infty}^\infty f(t) h(\frac{\alpha - t}{a}) dt\\
+    &= \sqrt{a} \int_{-\infty}^\infty f(\alpha - as) h(s) dt \tag*{Let $s = \frac{\alpha - t}{a}$}
+\end{align*}
+
+\begin{question}
+    What key property of the Mexican hat makes it a better filter for $f(s) = |s|$?
+\end{question}
+
+Indeed, let $h(t) = (1 - t^2) e^{-t^2/2}$, we first note 
+\[\widehat{h}(0) = \int_{-\infty}^\infty h(s) ds = 0\]
+Thus, we have that
+\begin{align*}
+    (W_h f)(\alpha, s) &= \sqrt{a} \int_{-\infty}^\infty f(\alpha - as) h(s) ds\\
+    &= \sqrt{a} \int_{-\infty}^\infty [f(\alpha - as) - f(\alpha)] h(s) ds
+\end{align*}
+This allows us to use the Lipschitz property!
+
+\begin{question}
+    Can we look at higher degrees of smoothness? (ie. when the derivatives are also smooth)
+\end{question}
+
+Indeed, we can think of the condition $\int_{-\infty}^\infty h(s) ds = 0$ as the fact that the zeroth moment of $h(s)$ is $0$. If $h(s)$ vanishes on higher moments too, we can write
+\[(W_h f)(\alpha, a) = \sqrt{a} \int_{-\infty}^\infty [f(a - \alpha s) - \text{linear polynomial}] h(s) ds\]
+
+What is the term $f(a - \alpha s) - \text{linear polynomial}$? Well, we can write 
+\[f(s) = f(0) + s f'(0) + ...\]
+using Taylor expansions. For the zero-th moment, we have that
+\[f(s) - f(0) = s f'(0) + ... \]
+In this case, we have filtered out the constant term (ie. the DC component). For higher order moments, we want to filter out more terms. To do this, we want the first $n$ orders of $h(s)$ to be $0$, that is
+\[\int_{-\infty}^\infty s^k h(s) ds = 0, 0 \leq k \leq n\]
+
+\begin{example}
+    If we look back at the Mexican Hat example again, we observe that
+    \[\int_{-\infty}^\infty s (1 - s^2) e^{-s^2/2} ds = 0\]
+    Hence, the first order moment of the filter is also $0$.\\\\
+    This means that $(W_h f)(\alpha, a) \approx 0$ at non-zero values too!\\\\
+    If we recall the examples we used last time, the Gaussian filter $h(t) = e^{-t^2/2}$ fails because its zeroth moment is non-zero. The Haar wavelet fails because its first moment is non-zero, hence it is sensitive to derivatives. The first moment of the derivative Gaussian is similarly also non-zero.
+\end{example}
+
+\subsection{Criterion for Selecting a Wavelet}
+
+In general we want out filter $h(s)$ to satisfy:
+\begin{itemize}
+    \item $\int_{-\infty}^\infty s^m h(s) ds = 0$ for $m = 0, 1, ..., M$ where $M$ is taken to be necessary. This implies that $h(s)$ should also be oscillating.
+    \item $h(s)$ has rapid decay or compactly supported.
+\end{itemize}
+
+Note that sometimes we do not want to make $M$ too big. For example,
+\[\frac{d^{1066}}{d t^{1066}} (e^{-t^2/2})\]
+is a good filter moment wise, but it is really complicated to work with because we will be dealing with $e^{-t^2/2} \times \text{polynomial of degree $1066$}$.
+
+Thus, we have that
+\[(W_h f)(\alpha, a) = \frac{1}{\sqrt{a}} \int_{-\infty}^\infty f(t) h(\frac{t - \alpha}{a}) dt\]
+Generally, this integral is not directly solvable, so we would want to obtain a numerical approximation, for fixed $\alpha, a$, we have
+\[(W_h f)(\alpha, a) \approx \frac{1}{\sqrt{a}} \sum_{n \in \Zbb} f(n) h(\frac{n - \alpha}{a})\]
+where $f(n)$ is thought of as the ``digital representation" of $f$. This is because computers can't represent functions analytically, so we instead take at each digit.
+
+\begin{definition}
+    Let $\{f(t): t \in \Rbb\}$ be a signal, we call
+    \[\{f(n): n \in \Zbb\}\]
+    the digital representation of the signal.
+\end{definition}
+
 \end{document}
