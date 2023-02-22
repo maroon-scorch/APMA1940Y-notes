@@ -746,7 +746,7 @@ Let's try to rescale $h$ so that $h(\frac{\bullet}{a})$ is independent of $|a|$,
 \[h_a(t) = \frac{1}{\sqrt{a}} h(t/a)\]
 Hence we note that
 \[||h_a(t)||^2 = \frac{1}{a} \int_{-\infty}^\infty |h(t/a)|^2 dt = \int_{-\infty}^\infty |h(s)|^2 ds\]
-This value is now indepndent of $a$!\\\\
+This value is now independent of $a$!\\\\
 
 We now arrive at a new type of transform
 \[(W_h f)(\alpha, a) = \frac{1}{\sqrt{a}} \int_{-\infty}^\infty f(t) h(\frac{\alpha - t}{a}) dt\]
@@ -832,8 +832,8 @@ The flexibility to vary $a$ allows us to change the scale at which resolve time 
 \begin{proof}
     Let's consider $\frac{|f(s) - f(t)|}{|s - t|^\mu}$ and figure out how large $\mu$ can be, so
     \begin{align*}
-        f(s) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f(\omega)} e^{-i\omega s} d\omega\\
-        f(t) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f(\omega)} e^{-i\omega t} d\omega\\
+        f(s) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f(\omega)} e^{+i\omega s} d\omega\\
+        f(t) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f(\omega)} e^{+i\omega t} d\omega\\
         f(s) - f(t) &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f}(\omega) (e^{i\omega s} - e^{i\omega t}) d\omega
     \end{align*}
     We observe that
@@ -1024,5 +1024,104 @@ where $f(n)$ is thought of as the ``digital representation" of $f$. This is beca
     \[\{f(n): n \in \Zbb\}\]
     the digital representation of the signal.
 \end{definition}
+
+\newpage
+
+\section{Lecture 12 - 2/19/2023}
+
+\subsection{Band-Limited Signals and Shannon Sampling Theorem}
+
+Consider the following problem:
+
+\begin{question}
+We have a digital phone exchange where calls are transmitted as digital signals. $\{f(t): t \in \Rbb\}$ is thought of as an analog signal, no information is really lost here, but now we only have packets of the signal (thought of as digital), so we only know the signal at integer values. In other words, we only have the information $\{f(m): m \in \Zbb\}$.\\
+
+The question is - how often do we need to sample the signal in order to get a perfect reconstruction at the other end? (... why can we even consider getting a perfect reconstruction? If there's no constraint on the function other than continuity, you can find infinity many functions fitting through the digital signal.) 
+\end{question}
+
+At a mathematical level, the question makes no sense (because frequency can be arbitrarily high). However, in practice, we do have a constraint on the signal because we are thinking about this in the context of a ``phone exchange", so we are only interested in certain frequency ranges. It is then natural to consider signals such that the frequency is limited:
+\[\widehat{f}(\omega) = 0 \text{ if $|\omega| > \Omega$}\]
+for some $\Omega \geq 0$.\\
+
+Let's now reformulate our question:
+\begin{question}[Shannon's Problem]
+    Suppose $f$ is band-limited by $\Omega$, how often do we need to sample $f$ in order to reconstruct $f$ from the digital samples?
+\end{question}
+
+\subsection{Poisson Summation Formula}
+In order to answer this question, we derive a useful mathematical tool - the Poisson Summation Formula.\\
+
+Suppose that $\widehat{f}(\omega)$ satisfies a decay condition (this holds for all band-limited signals but we are considering a more general case here):
+\[|\widehat{f}(\omega)| \leq C (1 + |\omega|)^{-\alpha}\ \text{ for some $\alpha > 1$}\ (*)\]
+(Note that the condition for Lipschitz $\alpha$ we proved implies this, but the converse is not true).\\\\
+
+To see that band-limited signals satisfy this, we can choose $C = (1 + |\Omega|)^{\alpha} \cdot \max_{|\xi| \leq \Omega} |\widehat{f}(\xi)|$, hence
+\[|\widehat{f}(\omega)| \leq \frac{(1 + |\Omega|)^{\alpha}}{(1 + |\omega|)^{\alpha}} \max_{|\xi| \leq \Omega} |\widehat{f}(\xi)|\]
+
+In particular, $(*)$ means that
+\[\int_{-\infty}^\infty |\widehat{f}(\omega)| d\omega \leq C \int_{-\infty}^\infty \frac{d\omega}{(1 + |\omega|)^\alpha} < \infty\]
+
+Hence we have that
+\[|\int_{-\infty}^\infty e^{i\omega t} \widehat{f}(\omega) d\omega| \leq \int_{-\infty}^\infty |\widehat{f}(\omega)| d\omega < \infty\]
+Thus, \underline{Fourier series is well-defined and $f$ is well-defined}.\\
+
+\begin{definition}
+Let $p > 0$ be given, and define a periodisation of $\widehat{f}$ as follows:
+\begin{align*}
+    \widehat{f}_{per}(\omega) &= \sum_{k \in \Zbb} \widehat{f}(w + kp)
+\end{align*}
+Then, $\widehat{f}_{per}(\omega)$ is clearly periodic with period $p$. 
+\end{definition}
+
+\begin{proposition}
+    $\widehat{f}_{per}(\omega)$ is well-defined for all $\omega \in \Rbb$.
+\end{proposition}
+
+\begin{proof}
+    To see that the sum converges, we only need to consider $\widehat{f}_{per}(\omega)$ for $\omega \in [0, p]$ and note that
+\begin{align*}
+    \int_0^p |\widehat{f}_{per}(\omega)| d\omega &= \int_0^p |\sum_{k \in \Zbb} \widehat{f}(\omega + kp)| d\omega\\
+    &\leq \sum_{k \in \Zbb} \int_0^p |\widehat{f}(\omega + kp)| d\omega\\
+    &= \sum_{k \in \Zbb} \int_{kp}^{kp +p} |\widehat{f}(\xi)| d\xi \tag*{Let $\xi = \omega + kp$}\\
+    &= \int_{-\infty}^\infty |\widehat{f}(\xi)| d\xi\\
+    &< \infty
+\end{align*}
+\end{proof}
+
+In particular, $\widehat{f}_{per}(\omega)$ has a discrete Fourier series.
+\[\widehat{f}_{per}(\omega) = \sum_{n \in \Zbb} c_n e^{-2\pi i \omega n/p},\ \omega \in [0, p]\]
+where
+\[c_n = \int_0^p \frac{1}{p} \widehat{f}_{per}(\omega) e^{2\pi \omega n/p} d\omega\]
+Computing $c_n$ explicitly:
+\begin{align*}
+    c_n &= \int_0^p \frac{1}{p} \widehat{f}_{per}(\omega) e^{2\pi \omega n/p} d\omega\\
+    &= \frac{1}{p} \sum_{k \in \Zbb} \int_0^p \widehat{f}(\omega + kp) e^{2\pi i \omega n/p} d\omega\\
+    &= \frac{1}{p} \sum_{k \in \Zbb} \int_{kp}^{kp+p} \widehat{f}(\xi) e^{2\pi i(\xi - kp)n/p} d\xi \tag*{Let $\xi = \omega + kp$}\\
+    &= \frac{1}{p} \sum_{k \in \Zbb} \int_{kp}^{kp+p} \widehat{f}(\xi) e^{2\pi i(\xi)n/p}\cdot 1 d\xi\\
+    &= \frac{1}{p} \sum_{k \in \Zbb} \int_{kp}^{kp+p} \widehat{f}(\xi) e^{2\pi i(\omega)n/p} d\omega\\
+    &= \frac{1}{p} \int_{-\infty}^\infty \widehat{f}(\omega) e^{2\pi i \omega n/p} d\omega\\
+    &= (\frac{2\pi}{p}) (\frac{1}{2\pi}) \int_{-\infty}^\infty \widehat{f}(\omega) e^{2\pi i \omega n/p} d\omega\\
+    &= \frac{2\pi}{p} f(\frac{2\pi n}{p}) \tag*{By Fourier Inversion Formula}
+\end{align*}
+
+Hence, we obtain the Possion Summation Formula:
+\begin{theorem}
+Let $p > 0$ be fixed and $\widehat{f}$ be a function that satisfies then aforementioned decay condition, then
+   $$\widehat{f}_{per}(\omega) = \frac{2\pi}{p} \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) e^{-2\pi i \omega n/p}$$
+for all $\omega \in [0, p]$
+\end{theorem}
+
+This is really useful for proving various identities:
+\begin{corollary}[Basel Problem]
+    $\sum_{n = 1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}$
+\end{corollary}
+
+\begin{proof}
+    Exercise!
+\end{proof}
+
+\begin{remark}
+    The closed form value of $\sum_{n = 1}^\infty \frac{1}{n^3}$ is not known! It's interesting to investigate why you can't use Possion Summation Formula to solve this.
+\end{remark}
 
 \end{document}
