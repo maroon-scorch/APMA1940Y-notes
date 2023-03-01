@@ -963,7 +963,7 @@ This suggests that we can detect $\mu$ locally by seeing how the Wavelet transfo
 We recall that last lecture, we obtained the following two equivalent formulation of the Continuous Wavelet Transform:
 \begin{align*}
     (W_h f)(\alpha, a) &= \frac{1}{\sqrt{a}} \int_{-\infty}^\infty f(t) h(\frac{\alpha - t}{a}) dt\\
-    &= \sqrt{a} \int_{-\infty}^\infty f(\alpha - as) h(s) dt \tag*{Let $s = \frac{\alpha - t}{a}$}
+    &= \sqrt{a} \int_{-\infty}^\infty f(\alpha - as) h(s) ds \tag*{Let $s = \frac{\alpha - t}{a}$}
 \end{align*}
 
 \begin{question}
@@ -1027,7 +1027,7 @@ where $f(n)$ is thought of as the ``digital representation" of $f$. This is beca
 
 \newpage
 
-\section{Lecture 12 - 2/19/2023}
+\section{Lecture 12 - 2/22/2023}
 
 \subsection{Band-Limited Signals and Shannon Sampling Theorem}
 
@@ -1123,5 +1123,266 @@ This is really useful for proving various identities:
 \begin{remark}
     The closed form value of $\sum_{n = 1}^\infty \frac{1}{n^3}$ is not known! It's interesting to investigate why you can't use Possion Summation Formula to solve this.
 \end{remark}
+
+\newpage
+\section{Lecture 13 - 2/24/2023}
+
+\subsection{Proof of the Shannon Sampling Theorem}
+Recall in the last lecture, we have written out the \textbf{Poisson Summation Formula}:
+\[\sum_{k \in \Zbb} \widehat{f}(\omega + pk) = \frac{2\pi}{p} \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) e^{-2\pi i n \omega/p}\]
+We'll use this to answer the sampling question, but before that - let's rethink about what we want to do:
+
+\begin{question}
+    Suppose we have $f$ sampled at discrete points $f(0), f(\pm h), f(\pm 2h), ...$, and that $f$ is band limited with bandwidth $\Omega$. How small should $h$ be (depending on $\Omega$) such that we can reconstruct $f$ exactly, ie. we want a formula of the form
+    \[f(t) = \sum_{n \in \Zbb} f(nh) \cdot [\text{some correcting term here}]\]
+    In particular, our correcting term should probably depend on $t, n, $ and $h$, hence
+    \[f(t) = \sum_{n \in \Zbb} f(nh) \phi(t; n, h) \]
+    Then our question really is - how should we construct $\phi(t; n, h)$?
+\end{question}
+
+Here are some properties of $\phi$ that we would expect:
+\begin{itemize}
+    \item $\phi(mh; m, h) = 1$ and $\phi(mh; n, h) = 0$ if $m \neq n$
+    \item What is $\phi(t - h; m, h)$? Well,
+    \[f(t - h) = \sum_n f(n, h) \phi(t - h; n, h) = \sum_n f(n h + h) \phi(t; n, h)\]
+    They really have the same coefficients shifted by a spot, so we have that
+    \[\phi(t - h; n, h) = \phi(t; n+1, h)\]
+    More generally,
+    \[\phi(t - mh; n, h) = \phi(t; n + m, h)\]
+    This means that the structure of $\phi$ is very simple. Choose $n = 0$, then
+    \[\phi(t - mh; 0, h) = \phi(t; m, h) \forall t\]
+    Let's call $\varphi_0(t, h) = \phi(t; 0, h)$, then $\phi$ is really just determined by what $\varphi_0$ is!
+    \item We conclude that $\phi(t; m, h)$ is a translate of $\varphi_0(t; h)$
+    \item $\varphi_0(t; h)$ has to be an even function with respect to $t$ which decays as $|t| \to \infty$
+    \item What's the last variable we haven't messed with? It's $h$! We also expect a ``scaling property" in terms of how we'd change $h$,
+    \[\varphi_0(t; h) \propto \varphi_0(\frac{t}{h})\]
+\end{itemize}
+
+A pretty good suspect of a function that satisfies this is the \textbf{sink function}!
+
+\begin{theorem}[Shannon Sampling Theorem]
+    Suppose $\widehat{f}(\omega) = 0$ for all $|\omega| > \Omega$ with $f \in L_2(\Rbb)$. If $0 < a \leq \frac{\pi}{\Omega}$, then $f(t)$ is given by
+    \[f(t) = \sum_{k \in \Zbb} f(ka) \phi_s(\frac{t}{a} - k)\]
+    where $\phi_s(t) = \frac{\sin \pi t }{\pi t}$ is the ``Shannon Sampling Function".
+\end{theorem}
+
+\begin{proof}
+    Let's start with the Poisson Summation Formula:
+    \[\sum_{k \in \Zbb} \widehat{f}(\omega + pk) = \frac{2\pi}{p} \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) e^{-2\pi i n \omega/p}\]
+    Let's multiply both sides by
+    \[\sum_{k \in \Zbb} \widehat{f}(\omega + pk) e^{2\pi i \omega t/p} = \frac{2\pi}{p} \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) e^{2\pi i\omega (t - n)/p}\]
+    Let's integrate this expression on both sides with respect to $\omega$:
+    \begin{align*}
+        \sum_{k \in \Zbb} \int_{-p/2}^{p/2} \widehat{f}(\omega + pk) e^{2\pi i \omega t/p} d\omega &= \frac{2\pi}{p} \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) \int_{-p/2}^{p/2} e^{2\pi i\omega (t - n)/p} d\omega
+    \end{align*}
+    The integral on the RHS gives us
+    \begin{align*}
+        \int_{-p/2}^{p/2} e^{2\pi i\omega (t - n)/p} d\omega &= \frac{p}{2\pi i (t-n)}[e^{2\pi i \omega (t - n)/p}]_{-p/2}^{p/2}\\
+        &= \frac{p}{2\pi i (t-n)} [\frac{2i \sin(\pi(t - n))}{1}]\\
+        &= p \frac{\sin \pi(t - n)}{\pi(t - n)}\\
+        &= p \phi_s(t - n)
+    \end{align*}
+    The integral on the LHS should give $f(t)$! But we need $p/2$ to be sufficiently large so that $p/2 > \Omega$ so that we can get the entire integral on the LHS (since $\widehat{f}(\omega)$ is band-limited). To do this, we choose $a = \frac{2\pi}{p}$. The condition that $p/2 > \Omega$ is then equivalent to $\frac{\pi}{a} > \Omega$.\\\\
+    \begin{align*}
+        LHS &= \sum_{k \in \Zbb} \int_{-p/2}^{p/2} \widehat{f}(w + kp) e^{2\pi i \omega t/p} d\omega\\
+        &= \int_{-p/2}^{p/2} \widehat{f}(\omega) e^{2\pi i \omega t/p} \tag*{If $p/2 > \Omega$, this is because all other values of $k$ have $\widehat{f}(w + kp) = 0$}\\
+        &= \int_{-\infty}^\infty \widehat{f}(\omega) e^{2\pi i \omega t/p} d\omega \tag*{Since $p/2 > \Omega$, integrating over the support}\\
+        &= 2\pi f(\frac{2\pi t}{p})
+    \end{align*}
+    Hence our equation becomes
+    \[2\pi f(\frac{2\pi t}{p}) = 2\pi \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) \phi_s(t - n)\]
+    for $p > 2 \Omega$.\\\\
+    So we have that
+    \[f(\frac{2\pi t}{p}) = \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) \phi_s(t - n)\]
+    Write $\frac{2\pi}{p} = a$, $p > 2 \Omega$ is the same as $a < \frac{\pi}{\Omega}$, hence we have that
+    \[f(at) = \sum_{n \in \Zbb} f(an) \phi_s(t - n)\]
+    A change of variables gives the desired equation given by the Theorem and finishes the proof.
+\end{proof}
+
+\newpage
+\section{Lecture 14 - 2/27/2023}
+
+\subsection{Oversampling}
+
+Consider the Shannon-Whittaker Formula, we have
+\[f(t) = \sum_{n \in \Zbb} f(an) \phi_s(\frac{t}{a} - n)\]
+provided that:
+\begin{itemize}
+    \item $f$ has bandwidth $\Omega$ and is in $L^2(\Rbb)$
+    \item $a \leq \pi/\Omega$
+    \item $\phi_s(t) = \frac{\sin \pi t}{\pi t}$ is the ``Shannon Sampling Function"
+\end{itemize}
+
+There are some problems with this in practical applications:
+\begin{itemize}
+    \item This formula is an infinite sum
+    \item If we want to truncate the equation and approximate $f$, we get a slowly convergent series because
+    \[\phi_s(t) \sim \frac{1}{t} \text{ as } t \to \infty\]
+\end{itemize}
+
+\begin{example}
+    Consider the sum
+    \[S = \sum_{n = 0}^\infty \frac{(-1)^n}{n+1}\]
+    How many terms are needed to get an accuracy $10^{-3}$? You need about $1000$ terms! However, we note that
+    \[S = (\frac{1}{1} - \frac{1}{2}) + (\frac{1}{3} - \frac{1}{4}) + ...\]
+    So in general we have that
+    \[\frac{1}{2r - 1} - \frac{1}{2r} = \frac{+1}{2r(2r - 1)}\]
+    So we have that
+    \[S = \sum_{r = 1}^\infty \frac{1}{2r(2r - 1)}\]
+    How many terms do we need to get to $10^{-3}$? It's roughly $\sqrt{1000} \approx 30$! There are a lot of series where you can tweak to make it converge faster.
+\end{example}
+
+\begin{question}
+    Can we rewrite the Shannon-Whittaker Formula to make the sum converge faster? In other words, we seek a formula of the same form
+    \[f(t) = \sum_{n \in \Zbb} f(an) \phi(t/a - n),\ a \leq \pi/\Omega\ (\dagger)\]
+    that is exact when $f$ has bandwidth $\Omega$ and such that $\phi(t)$ decays more rapidly as $t \to \infty$ than $\phi_s(t)$.
+\end{question}
+
+Let's start by trying to construct a counter-example:
+
+\begin{example}
+    Let $\Omega > 0$ be given, then choose
+    \[f(t) = \phi_s(t/a) = \frac{\sin \pi t/a}{\pi t/a}\]
+    for some fixed $a$. Then $f$ has bandwidth $\pi/a$. We want to choose $a$ such that $\pi/a \leq \Omega$ for sanity.\\\\
+    We also need $a \leq \pi/\Omega$ because that's an additional constraint in our original question.\\\\
+    Why don't we just choose $a = \pi/\Omega$, so $f$ has bandwidth $\Omega$. Plugging this into $(\dagger)$ gives us
+    \[\phi_s(t/a) = \sum_{n \in \Zbb} \phi_s(an) \phi(t/a - n) = \sum_{n \in \Zbb} \delta_{n, 0} \phi(t/a - n) = \phi(t/a) \]
+    where $\delta_{n, 0}$ is the Kronecker delta symbol that is $0$ on all $n \neq 0$ and $1$ on $n = 0$.\\\\
+    Hence, we have that $\phi = \phi_s$, so we have a counter-example?
+\end{example}
+
+But ... there's some problem with the counter-example we just gave. If we choose $a = \pi/\Omega$, we always get our conclusion above. But what if we choose $a < \pi/\Omega$? Then the example above is no longer a counter-example.\\
+
+If $a < \pi/\Omega$, then we have actually over-parametrized the system, there are redundancies in the formula because we have more data than we need. If $a = \pi/\Omega$, the formula has no redundancy! The extra redundancy in $a < \pi/\Omega$ let's us exploit new linear dependencies to achieve a faster decay.\\
+
+The process of $a < \pi/\Omega$ is known as \textbf{oversampling}. The hope is that - by oversampling, we could get a formula that converges faster.\\
+
+Let's then choose $a < \pi/\Omega$ ($\pi/\Omega$ is sometimes called the \textbf{Nyquist Rate}), so there is flexibility in the choice of $\phi$.\\
+
+Let's rethink about our proof of Shannon's Sampling Theorem, let's consider the Poisson SUmmation Formula:
+\[\sum_{k \in \Zbb} \widehat{f}(w + kp) = \frac{2\pi}{p} \sum_{n \in \Zbb} f(2\pi n/p) e^{2\pi i n \omega/p}\]
+
+Now let's suppose that $f$ has bandwidth $\Omega$, we should consider $\omega \in (-\Omega, \Omega)$ as this is periodic.\\\\
+\[\]
+
+If $k \geq 1$, then $w + kp \geq w + p \geq -\Omega + p$. If $p$ is large enough, we can choose $p \geq 2\Omega$ such that
+\[w + kp \geq -\Omega + p \geq \Omega\]
+
+Thus, if $p \geq 2 \Omega$ and $k \geq 1$, then
+\[\widehat{f}(w + kp) \equiv 0\]
+
+On the other hand, if $k \leq -1$, then $w + kp \leq w - p \leq \Omega - p \leq -\Omega$ if $p \geq 2 \Omega$.\\
+
+Hence, if $p \geq 2\Omega$, the Poisson Summation Formula becomes
+\[\widehat{f}(w) = \frac{2\pi}{p} \sum_{n \in \Zbb} f(\frac{2\pi n}{p}) e^{-2\pi i n \omega/p}\]
+for $\omega \in (-\Omega, \Omega)$.\\
+
+Let's write $2\pi/a = p \geq 2\Omega$, then our condition is that $a \leq \pi/\Omega$.\\\\
+
+Let's choose $\widehat{g}$ such that $\widehat{g}(\omega) = 1$ for all $|\omega| \leq \Omega$, then we have that
+\[\widehat{f}(\omega) = \widehat{f}(\omega) \widehat{g}(\omega) = a \sum_{n \in \Zbb} f(a_n) e^{-i a \omega n} \widehat{g}(\omega)\]
+
+Taking the Inverse Fourier Transform on both sides gives
+\begin{align*}
+    f(t) &= \frac{1}{2\pi} \int_{-\infty}^\infty e^{i\omega t} \widehat{f}(\omega) d\omega \\
+    &= a \sum_{n \in \Zbb} f(an) [\frac{1}{2\pi} \int_{-\infty}^\infty \widehat{g}(\omega) e^{i \omega (t - an)} d\omega]\\
+    &= a \sum_{n \in \Zbb} f(an) g(t - an)
+\end{align*}
+for all $f$ with bandwidth less than $\Omega$ and that $a \leq \pi/\Omega$.\\
+
+Thus, we can choose $\phi(t/a) = g(t)$ in $\dagger$.
+
+\begin{remark}
+    Note that $\widehat{g}$ can essentially be any function outside the interval $[-\Omega, \Omega]$, so the only constraint is that is has to be constant within the interval.\\\\
+    But if we are not over-sampling, ie. when $a = \pi/\Omega$, our previous counter-example kicks in again.
+\end{remark}
+
+\newpage
+\section{Lecture 15 - 3/1/2023}
+
+Recall last lecture, we have proven our new theorem:
+\begin{theorem}
+    Let $\Omega > 0$, 
+    \[
+    \widehat{g}(\omega) = \begin{cases}
+        1,\ |\omega| \leq \Omega\\
+        \text{anything}, |\omega| > \Omega
+    \end{cases}
+    \]
+    If $f$ has bandiwdth $\leq$ $\Omega$, then
+    \[f(t) = a \sum_{n \in \Zbb} f(an) g(t - an)\]
+    for all $a \leq \pi/\Omega$.
+\end{theorem}
+
+This gives flexibility for us in the choice of $g$. We will list some notable applications:
+
+\begin{example}[Recovering one Lost Signal]
+    Choose
+    \[\widehat{g}(\omega) = \begin{cases}
+        1,\ |\omega| \leq \Omega\\
+        0,\ |\omega| > \Omega
+    \end{cases}\]
+    Then we have that
+    \[g(t) = \frac{1}{2\pi} \int_{-\Omega}^\Omega e^{i\omega t} d\omega = \frac{\sin \Omega t}{\pi t}\]
+    Then we have that
+    \[a g(t) = \frac{a \Omega}{\pi} \frac{\sin \Omega t}{\Omega t} = \frac{a \Omega}{\pi} \Phi_s(\frac{\Omega}{\pi} t)\]
+    where $\Phi_s(t) = \frac{\sin \pi t}{\pi t}$ is the usual Shannon Sampling Function. Applying the Theorem previously, we have that
+    \[f(t) = \frac{a \Omega}{\pi} \sum_{n \in \Zbb} f(an) \Phi_s(\frac{\Omega}{\pi}(t - an)),\ a \leq \pi/\Omega\]
+    When $a \Omega /\pi = 1$, then this reduces to $\frac{\Omega}{\pi} = 1/a$, which returns the Shannon-Whittaker formula. This is what we expect, and we get nothing new by choosing $a = \frac{\Omega}{\pi}$. This is because we are not oversampling.\\\\
+    Suppose we instead over-sample, ie. have that $a < \frac{\pi}{\Omega}$. We define the sampling rate $\beta$ as
+    \[\beta \coloneqq \frac{\pi}{\Omega a} > 1\]
+    (ie. if $\beta = 2$, we are sampling twice as often, etc.) Using the Theorem as before, formula then becomes,
+    \[f(t) = \frac{1}{\beta} \sum_{n \in \Zbb} f(\frac{\pi n}{\beta \Omega}) \Phi_s(\frac{\Omega t}{\pi} - \frac{1}{\beta})\]
+    When $t = 0$, we have
+    \[f(0) = \frac{1}{\beta} \sum_{n \in \Zbb} f(\frac{\pi n}{\beta \Omega}) \Phi_s(\frac{n}{\beta})\]
+    Observe that $f(0)$ appears on both sides. Look at the coefficients of $f(0)$ on the RHS, ie.
+    \[\frac{1}{\beta} \Phi_s(0) f(0) = \frac{1}{\beta}(1) f(0)\]
+    But since $\beta > 1$. we kmow that $\frac{1}{\beta} f(0) \neq f(0)$, so we have that
+    \[f(0) = \frac{\beta}{\beta - 1} \sum_{n \in \Zbb - \{0\}} f(\frac{\pi n}{\beta \Omega}) \Phi_s(\frac{n}{\beta})\]
+    Suppose we transmit $\{f(\frac{\pi n}{\beta \Omega}: n \in \Zbb\}$ but the value at $n = 0$ is lost, we can actually recover it by oversampling.
+\end{example}
+
+More generally, if we replace $f(t)$ by $f(t + \frac{\pi m}{\beta \Omega})$, then we get
+\[f(\frac{m \pi}{\beta \Omega}) = \frac{\beta}{\beta - 1} \sum_{n \neq 0} f(\frac{\pi}{\beta \Omega}(m + n)) \Phi_s(\frac{n}{\beta}) \]
+Let $\ell = m + n$, we have this denoising filter
+\[f(\frac{m \pi}{\beta n}) = \frac{\beta}{\beta - 1} \sum_{\ell \neq m} f(\frac{\pi \ell}{\beta \Omega}) \Phi_s(\frac{\ell - m}{\beta}),\ m \in \Zbb\]
+These relations are the basis for ``digital remastering" or ``noise reduction" in signal.\\
+
+Let's examine another application. Despite being a big deal, these formulae are not usually used in the above form. This is because this is still an infinite sum that doesn't decay really fast.\\
+
+Let's try to use the flexibility in the choice of $\widehat{g}$ to obtain a new (faster) converging formula.\\
+
+The inverse Fourier Transform of $g$ needs to decay faster! So we want to make $\widehat{g}$ decay slower (this is what the time-frequency inequality tells us). Let's try to extend the support from $[-\Omega, \Omega]$ to $[-\beta \Omega, \beta \Omega]$ for $\beta > 1$:
+\[\widehat{g}(\omega) = \begin{cases}
+    1,\ |\omega| \leq \Omega\\
+    \text{linear},\ \Omega \leq |\omega| \leq |\beta \Omega|\\
+    0,\ \text{otherwise}
+\end{cases}\]
+
+Converting $\widehat{g}$ to $g$ gives:
+\[g(t) = \frac{\cos \Omega t - \cos \beta \Omega t}{\pi t^2 (\beta - 1) \Omega}\]
+
+This converges a lot faster, we observe that
+\begin{itemize}
+    \item L'Hopital's Rule gives us 
+ \[\lim_{\beta \to 1} g(t) = \frac{\sin \Omega t}{\pi t}\ (\text{as expected})\]   
+    \item We also have that
+\[g(t) \sim \frac{1}{t^2} \text{ as } |t| \to \infty \]
+\item $\lim_{t \to 0} g(t) \frac{1}{2} \Omega (\beta + 1) \neq 1$. The fact that this doesn't equal to $1$, we can do digital oversampling!
+\end{itemize}
+
+\begin{question}
+    What exactly do band-limited signals look like? If $f$ is band-limited, how smooth is $f$? (Find out in Homework)
+\end{question}
+
+\begin{question}
+    What if $f$ is not bandlimited (but smooth)? We can approximate
+    \[f(t) \approx a \sum_{n \in \Zbb} f(an) \Phi_s(\frac{t}{a} - n)\]
+    We expect the approximation to be good as $a \to 0$. Can you think of a bound of error for this? (This week's homework).
+\end{question}
+
+
+
+
 
 \end{document}
