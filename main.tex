@@ -842,7 +842,7 @@ The flexibility to vary $a$ allows us to change the scale at which resolve time 
     \end{align*}
     On the other hand, we have that
     \begin{align*}
-        |e^{i\omega s} - e^{i \omega t}|  &= |[e^{i \omega \theta}_t^s]|\\
+        |e^{i\omega s} - e^{i \omega t}|  &= |[e^{i \omega \theta}]_t^s]|\\
         &= |\int_{t}^s i \omega e^{i \omega \theta} d\theta|\\
         &\leq |\int_t^s d\theta |\omega||\\
         &\leq |\omega| \cdot |s - t| \tag*{Good when $s$ is close to $t$ and $\omega$ is small}
@@ -1381,8 +1381,172 @@ This converges a lot faster, we observe that
     We expect the approximation to be good as $a \to 0$. Can you think of a bound of error for this? (This week's homework).
 \end{question}
 
+\newpage
+\section{Lecture 16 - 3/3/2023}
 
 
+Recall in the last lecture, we derived a new sampling formula
+\[f(t) = a \sum_{n \in \Zbb} f(an) g(t - an)\]
+where $g(t) = ...$ simplifies to get
+\begin{align*}
+    f(t) = \sum_{n \in \Zbb} f(an) \phi(t - an)\ (*)
+\end{align*}
+where $\phi(t) = \frac{\cos \Omega t - \cos \beta \Omega t}{\beta(\beta - 1)t^2\Omega^2}$ for $\beta > 1$. We made the observations:
+\begin{itemize}
+    \item $\lim_{\beta \to 1} \phi(t) = \frac{\sin \Omega t}{\Omega t} \implies $ Shannon
+    \item By applying L'Hopital's Rule twice, we have that $\lim_{t \to 0} \phi(t) = \frac{1 + \beta}{2\beta}$. In particular, $\frac{1 + \beta}{2\beta} = 1$ if and only if $\beta = 1$. Thus, if $\beta > 1$, we can obtain a reconstruction formula by solving for $f(0)$ in $(*)$ when $(t = 0)$.
+    \item We can thus use $(*)$ to find that
+    \[f(0) = \frac{\beta}{2(\beta - 1)} \sum_{n \in \Zbb - \{0\}} f(\frac{\pi n}{\beta \Omega}) \frac{1}{\pi^2 n^2} [\cos \frac{\pi n}{\beta} - \cos \pi n]\]
+    Observe that this formula decays close to $\frac{1}{n^2}$.
+    \item This means that we can recover $f(0)$ without knowing what $f(0)$ is, by using the samples $\{f(\frac{\pi n}{\beta \Omega}\ :\ n \in \Zbb - \{0\}\}$.
+\end{itemize}
+
+\subsection{Filtering and Denoising}
+
+A slightly different question is to ask - suppose we transmit the digital packet
+    \[\{f(\frac{\pi n}{\beta \Omega})\ :\ n \in \Zbb\}\]
+    but they are subject to random noise, so we have received
+    \[\{f(\frac{\pi n}{\beta \Omega}) + \epsilon_n \ :\ n \in \Zbb\}\]
+    where $\epsilon_n$ is random.
+
+\begin{question}
+    How well can we recover the original signal?
+\end{question}
+
+We can use $(*)$ to denoise! Let
+\[f(t) = \sum_{n \in \Zbb} f(an) \phi(t - an)\]
+Let $t = am$ for $m \in \Zbb$, we have that
+\[f(am) = \sum_{n \in \Zbb} f(an) \phi(a(m - n))\]
+
+\begin{definition}
+Let $f^{noisy}$ be the function altered by noise, we define,
+    $$f^{new}(am) \coloneqq \sum_{n \in \Zbb} f^{noisy}(an) \phi(a(m-n))$$
+We think of $\phi(a(m-n))$ as a form of weighting and $f^{new}(am)$ as the wegithed sum of the noises.\\\\
+Let's instead consider the packet $\{f^{new}(am): m \in \Zbb\}$. We expect the noise of this new function to be smaller (by APMA 1650 - taking an average always reduces the variance). We can refine the function by plugging $f^{new}(am)$ into the denoising function above again, and do it recursively down.
+\end{definition}
+
+\begin{remark}
+Oversampling increases the bandwidth we can collect, but it actually impedes the smoothing process of the signal. So our denoising process really depends on how much of the bandwidth we are asking to sample over. If it's around the bandwidth of the original signal, we have a really good approximation. However, if the original bandwidth is unknown, this is a really difficult question on how to recover the original signal.    
+\end{remark}
+
+\begin{conjecture}
+If we choose our filter such that the bandwidth is the exactly the bandwidth of the original signal, we can recover $\{f(\frac{\pi n}{\beta n}) + \epsilon_n: n \in \Zbb\}$ exactly (most of the time - there are some counter example, for example choose $\epsilon_n = 1$ for all $n$, this is not actually a noise but the probability of all $\epsilon_n$ being the same is really low ... but the question is, on average (the expected probability), you will always get the original signal). This is a research question that even the instructor does not know.
+\end{conjecture}
+
+\newpage
+\section{Lecture 17 - 3/6/2023}
+
+\subsection{Signal Spaces}
+In the previous section, we showed that (under quite general conditions on $g$), that any band-limited signal can be represented digitally with:
+\[f(t) = a \sum_{n \in \Zbb} f(an) g(t - an)\]
+provided that $a \leq \frac{\pi}{\Omega}$ and
+\[\widehat{g}(\omega) = \begin{cases}
+    1,\ |\omega| \leq \Omega\\
+    \text{anything , otherwise}
+\end{cases}\]
+
+\begin{definition}
+    Fix $g(t - an)$ and $a$, This suggests that
+    \[V_{g, a} \coloneqq \overline{\span \{g(t - an)\ :\ n \in \Zbb\}}\]
+    is a good space for representing signals digitally. Any signal can be represented by
+    \[\sum_{n \in \Zbb} c_n g(t - an)\]
+    for appropriate digital information $\{c_n: n \in \Zbb\}$. We call $V_{g, a}$ a \textbf{signal space}.
+\end{definition}
+
+\begin{definition}[Scalar Product on Signal Space]
+There's a canonical scalar product on $V_{g, a}$:    
+\[f, h \in V_{g, a} \mapsto (f, h)_* \coloneqq \int_{\Rbb} f(t) \overline{h}(t) dt\]
+There's a question on whether this value is finite, but as long as we require our signal to have finite energy, this will be well-defined.
+\end{definition}
+
+\begin{question}
+    Is the digital representation \textbf{stale}? That is, suppose $f \in V_{g, a}$ and we write
+    \[f(t) = \sum_{n \in \Zbb} c_n g(t - an)\]
+    We assume that the $c_n$ are uniquely determined (choose $g(t - an)$ linearly independent). This defines a bijective mapping
+    \[f \mapsto \{c_n: n \in \Zbb\}\]
+    This is a bijective map from $V_{g, a} \to \Cbb[\Zbb]$ (where $\Cbb[\Zbb]$ is thought of as the \textbf{sequence space} of countable length with coefficients in $\Cbb$).\\\\
+    The question of staleness is - is the map continuous?
+\end{question}
+
+How are we going to define a topology on $\Cbb[\Zbb]$, we could choose the $\ell_\infty$ norm:
+\[||\{c_n: n \in \Zbb\}|| \coloneqq \sup_{n \in \Zbb} |c_n| \sim \ell_\infty\]
+But we wouldn't choose this, instead, let's consider the $\ell_2$ norm:
+\[||\{c_n: n \in \Zbb\}|| \coloneqq (\sum_{n \in \Zbb} |c_n|^2)^{1/2} \sim \ell_2\]
+
+To show that the math is continuous, we really want a constant map $A > 0, B > 0$ (finite) such that 
+\[A ||\{c_n\} - \{\Tilde{c_n}\}|| \leq ||f - \Tilde{f}|| \leq B ||\{c_n\} - \{\Tilde{c_n}\}||\]
+This is what's typically known as a \textbf{norm equivalence}. More generally, we have
+\[A ||\{c_n\}|| \leq ||f|| \leq B||c_n||\ \forall f \in V_{g, a}\]
+This is known as the \textbf{Riesz Basis Property}
+
+\begin{remark}
+    When / How could this Riesz Basis Property not hold?
+    \[\includegraphics[width=0.5\textwidth]{Figures/lec17-1}\]
+    We call this phenomenon \textbf{super sensitivity}. In particular, $A$ and $B$ only depends on the choice of bases $\{g(t - an)\}_{n \in \Zbb}$.
+\end{remark}
+
+Ideally, we want to have an \textit{orthonormal basis}, ie.
+\[\int_\Rbb g(t - an) \overline{g(t - am)} dt = \begin{cases}
+    1,\ \text{if $m = n$}\\
+    0,\ \text{if $m \neq n$}
+\end{cases}\]
+
+\begin{proposition}
+    If $\{g(t - an)\}$ is an orthonormal basis, then it satisfies the Riesz Basis Property 
+\end{proposition}
+
+\begin{proof}
+In the case of orthonormal basis, for any
+\[f(t) = \sum_{n \in \Zbb} c_n g(t - an)\]
+We have that
+\begin{align*}
+    ||f||^2 &= (\sum c_n g(t - an), \sum c_m g(t - am))\\
+    &= \sum_m \sum_n c_n \overline{c_m} (g(t - an), g(t - am))\\
+    &= \sum_m |c_m|^2\\
+    &= ||\{c_n\}||^2
+\end{align*}
+Choose $A = B = 1$, we have that
+\[A ||\{c_n\}|| \leq ||f|| \leq B||c_n||\ \forall f \in V_{g, a}\]
+\end{proof}
+
+\begin{example}
+    Consider the Shannon-Whittaker Basis, where
+    \[g(t) = \phi_s(t) = \frac{\sin \pi t}{\pi t}\]
+    We have two questions:
+    \begin{enumerate}
+        \item Is $\{g(t - an)\}$ an Riesz basis?
+        \item Is $\{g(t - an)\}$ an orthonormal basis?
+    \end{enumerate}
+    Let $a = 1$, consider the integral below. We will evaluate this using Parserval's Identity:
+    \begin{align*}
+        \int_\Rbb \phi_s(t - n) \phi_s(t - m) dt
+    \end{align*}
+    What is the Fourier Transform of $t \mapsto \phi_s(t - m)$? This is the mapping:
+    \begin{align*}
+        \omega \mapsto \int_{\Rbb} e^{-i\omega t} \phi_s(t - m) dt &= e^{-i\omega m} \int_{-\infty}^\infty e^{-i\omega t} \phi_s(t) dt\\
+        &= e^{-i\omega m} \cdot \begin{cases}
+            1,\ |\omega| < \pi\\
+            0,\ \text{otherwise}
+        \end{cases}
+    \end{align*}
+    Let's call $\chi(\omega)$ the function $\begin{cases}
+            1,\ |\omega| < \pi\\
+            0,\ \text{otherwise}
+        \end{cases}$. Then by Parserval's Identity, we have that
+    \begin{align*}
+            \int_\Rbb \phi_s(t - n) \phi_s(t - m) dt &=\frac{1}{2\pi} \int_{-\infty}^\infty e^{-i\omega n} \chi(\omega) e^{i\omega m} \overline{\chi(\omega)} d\omega\\
+            &= \frac{1}{2\pi} \int_{-\pi}^\pi e^{i\omega (m - n)} d\omega\\
+            &= \begin{cases}
+                1,\ m = n\\
+                0,\ m \neq n
+            \end{cases}
+    \end{align*}
+    Hence, the answer to Question $(1)$ and $(2)$ are both true!
+\end{example}
+
+\begin{corollary}
+    The Shannon-Whittaker Basis is an orthonormal basis, hence is a Riesz Basis with $A = B = 1$.
+\end{corollary}
 
 
 \end{document}
