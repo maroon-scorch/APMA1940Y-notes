@@ -1548,5 +1548,89 @@ Choose $A = B = 1$, we have that
     The Shannon-Whittaker Basis is an orthonormal basis, hence is a Riesz Basis with $A = B = 1$.
 \end{corollary}
 
+\newpage
+\section{Lecture 18 - 3/8/2023}
+
+\subsection{Best Approximations and Projections}
+Suppose we want to represent a signal $f(t) \approx \sum_{n \in \Zbb} c_n \phi(t - an)$ with $t \in \Rbb$. In other words, we wish to approximate $f$ by an element of the signal space $V_{\phi, a} = Span\{\phi(t - an): n \in \Zbb\}$ and $\phi$ is some appropriate function.
+
+\begin{question}
+    How can we choose the $\{c_n\}$ to approximate this desired $f(t)$?
+\end{question}
+
+There are two options:
+\begin{enumerate}
+    \item We can consider \textit{digital sampling}, ie.
+    \[c_n = f(an), n \in \Zbb\]
+    then we have that
+    \[f(t) \approx (V_a^\phi f)(t) \coloneqq \sum_{n \in \Zbb} f(an)\phi(t - an)\]
+    Is this a good idea? Well, the approximation above is exact when $\phi$ is a Shannon function and $f$ is band-limited by $\Omega$, and $a \leq \frac{\pi}{\Omega}$.\\\\
+    However, this may not be a good idea if any of these hypothesis are not satisfied.
+    \item \textit{Best possible choice}:\\
+    The idea here is to choose $\{c_n\}$ such that we minimize the error
+    \[\varepsilon(f; \{c_n\}) = ||f(t) - \sum_{n \in \Zbb} c_n \phi(t - an)||^2\]
+    Let's differentiate this term with respect to $c_j$ (let's assuming $f, c_n, \phi$ all real), hence
+    \begin{align*}
+        0 &= \frac{1}{2} \frac{\partial \varepsilon}{\partial c_j}\\
+        &= \langle f(t) - \sum c_n \phi(t - an), \phi(t - aj) \rangle \tag*{The inner product}\\
+        \iff \langle f(t), \phi(t - aj)\rangle &= \sum_{n} c_n \langle \phi(t - an), \phi(t - aj) \rangle\ \forall j \in \Zbb\\
+        \iff \sum_n M_{jn} c_n = f_j\ \forall j \in \Zbb
+    \end{align*}
+    $f_j$ is defined as $\langle f(t), \phi(t - aj)\rangle $ and $M_{jn} \coloneqq \langle \phi(t - an), \phi(t - aj) \rangle$.\\\\
+    This is equivalent to the problem
+    \[M \Vec{c} = \Vec{f}\]
+    where $M = [M_{jn}]$ and $\Vec{f} = [f_j]$ and $\Vec{c} = [c_n]$, where we ended up with an infinite matrix equation.\\\\
+    Let's suppose that we have an orthonormal basis, then $M_{jn}$ is really the infinite dimensional identity matrix. In this case, we have that
+    \[c_n = f_n = \langle f(t), \phi(t - an) \rangle\ \forall n \in \Zbb\]
+    One should also use the second derivative test to check this is really a minimum, that's left as an exercise.  
+\end{enumerate}
+
+This gives us the following proposition:
+\begin{proposition}
+    The best approximation (optimal $c$'s) given by
+    \[(L_a f)(t) \coloneqq \sum_{n \in \Zbb} c_n \phi(t - an)\]
+    where either the $\{c_n\}$ determined by either
+    \begin{itemize}
+        \item If $M \Vec{c} = \Vec{f}$ $\quad (\star)$
+        \item Furthermore, if $\{\varphi(t - an): n \in \Zbb\}$ is orthonormal, we have that
+        \[c_n = \langle f(t), \phi(t - an) \rangle \]
+    \end{itemize}
+\end{proposition}
+
+\begin{remark}
+    Suppose $f$ is band-limited again by $\Omega$ and $a \leq \frac{\pi}{\Omega}$ with $\phi$ chosen to be Shannon Sampling function (or similar) again. What can we say about $c_n$ given by $(\star)$?\\\\
+    They should actually coincide with $f(an)$ because the minimum of the optimization in Best Approximation is unique. We know $V^\phi_a f = f$ in this case and $||f - L_a f|| \leq ||f - V^{\phi}_a f|| = 0$, hence $L_a f = f - V^\phi_a f$.
+\end{remark}
+
+This leads us to suspect that if we choose $\varphi$ such that $\hat{\varphi}$ looks like the step function from $-\Omega$ to $\Omega$, ie. if
+\begin{itemize}
+    \item $\hat{\varphi}(0) = 1$ and $\hat{\varphi}'(0) = \hat{\varphi}''(0) = ... = \hat{\varphi}^{(m)}(0) = 0$ for $m$ as large as possible
+\end{itemize}
+then $\varphi$ should be a good sampling function.
+
+\[\hat{\varphi}(\omega) \approx 1 \text{ for } |\omega| \text{ in some range}\]
+
+These are the conditions for a \textbf{Butterworth filter}, and, in this case, the best approximation $L^a f(t)$ is about the same as $(V^\phi_a f)(t)$. Hence, we can use Digital Sampling as a ``good enough" approximation.
+
+\begin{theorem}
+    Suppose that
+    \begin{itemize}
+        \item (a) $\{\phi(t - an): n \in \Zbb\}$ is orthonormal
+        \item (b) $\hat{\phi}(\omega) \approx 1$ for $|\omega| \leq \Omega$
+    \end{itemize}
+    Then for $f$ bandlimited by $\Omega$, we have that
+    \[V^\phi_a f \approx L_a f\ \text{for } a \leq \pi/\Omega\]
+\end{theorem}
+
+\begin{proof}
+By Parserval's Identity, 
+    \begin{align*}
+        c_k^{\star} &\coloneqq \int_{-\infty}^\infty f(t) \phi(t - ak)\ dt\\
+        &= \frac{1}{2\pi} \int_{-\infty}^\infty \widehat{f}(\omega) e^{i\omega k a} \overline{\hat{\phi}(\omega)} d\omega\\
+        &= \frac{1}{2\pi} \int_{-\Omega}^\Omega \widehat{f}(\omega) e^{i\omega k a} \overline{\hat{\phi}(\omega)} d\omega\\
+        &\approx \frac{1}{2\pi}  \int_{-\Omega}^\Omega \widehat{f}(\omega) e^{i\omega k a} d\omega \tag*{Since $\hat{\phi}(\omega) \approx 1$}\\
+        &= f(ka) \tag*{Definition of Inverse Fourier Transform}
+    \end{align*}
+\end{proof}
 
 \end{document}
