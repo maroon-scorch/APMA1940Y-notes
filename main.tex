@@ -1262,8 +1262,7 @@ Let's then choose $a < \pi/\Omega$ ($\pi/\Omega$ is sometimes called the \textbf
 Let's rethink about our proof of Shannon's Sampling Theorem, let's consider the Poisson SUmmation Formula:
 \[\sum_{k \in \Zbb} \widehat{f}(w + kp) = \frac{2\pi}{p} \sum_{n \in \Zbb} f(2\pi n/p) e^{2\pi i n \omega/p}\]
 
-Now let's suppose that $f$ has bandwidth $\Omega$, we should consider $\omega \in (-\Omega, \Omega)$ as this is periodic.\\\\
-\[\]
+Now let's suppose that $f$ has bandwidth $\Omega$, we should consider $\omega \in (-\Omega, \Omega)$ as this is periodic.\\
 
 If $k \geq 1$, then $w + kp \geq w + p \geq -\Omega + p$. If $p$ is large enough, we can choose $p \geq 2\Omega$ such that
 \[w + kp \geq -\Omega + p \geq \Omega\]
@@ -1447,7 +1446,7 @@ provided that $a \leq \frac{\pi}{\Omega}$ and
 
 \begin{definition}
     Fix $g(t - an)$ and $a$, This suggests that
-    \[V_{g, a} \coloneqq \overline{\span \{g(t - an)\ :\ n \in \Zbb\}}\]
+    \[V_{g, a} \coloneqq \overline{\spn \{g(t - an)\ :\ n \in \Zbb\}}\]
     is a good space for representing signals digitally. Any signal can be represented by
     \[\sum_{n \in \Zbb} c_n g(t - an)\]
     for appropriate digital information $\{c_n: n \in \Zbb\}$. We call $V_{g, a}$ a \textbf{signal space}.
@@ -1632,5 +1631,96 @@ By Parserval's Identity,
         &= f(ka) \tag*{Definition of Inverse Fourier Transform}
     \end{align*}
 \end{proof}
+
+
+\newpage
+\section{Lecture 19 - 3/10/2023}
+\subsection{Scaling and Two Scale Relation}
+
+We have proposed to use spaces of form
+\[V_{\phi, a} = \spn \{\phi(t - an): n \in \Zbb\}\]
+to represent signals in the form
+\[f(t) \approx \sum_{n \in \Zbb} c_n \phi(t - an)\]
+provides that $\hat{\phi}$ satisfies same assumptions. If $a \to 0$, we expect the approximations to improve. This is because the Bandwidth $\Omega$ can grows as $\pi/a$, so we would get more information about the signal.\\
+
+We have also shown that choosing $c_n = f(an)$ is a near optimal choice (under reasonable circumstances on $f$), a question we are now interested in is
+\begin{question}
+    How to choose $a$? When do we know that $a$ is sufficiently small?
+\end{question}
+
+We know that we have a good approximation when $\Omega \leq \frac{\pi}{a}$! But what if $f$ has a wider bandwidth? In the previous lectures, we have doubled the sampling rate by changing $a \mapsto a/2$ so we can represent the bandwidth up to $\Omega \leq \frac{2\pi}{a}$. In general, we can keep doubling the sampling rate by sending $a \mapsto a/2^n$ to find a sufficiently high bound on the bandwidth.\\
+
+To adjust the bound on $\Omega$, we are in effect using a family of signal spaces of the form ($a = 1$, for convenience):
+\[V_n = V_{\phi, 2^{-n}} = \spn \{\phi(2^n t - k)\ |\ k \in \Zbb\}\]
+for $n \in \Zbb$. (Note that we can rewrite $\phi(t - an)$ as $\phi(\frac{t}{a} - n)$ up to some reparametrization).\\
+
+The issue is that we not have an infinite signal spaces.
+
+\begin{remark}
+    Suppose $\phi$ is real-valued with center $t_* = 0$ and spread $\Delta_\phi$, then the map $t \mapsto \phi(2^n t - k)$ would satisfy:
+    \begin{itemize}
+        \item For energy, we have that $\int_{-\infty}^\infty |\phi(2^n t - k)|^2 dt = 2^{-n} \int_{-\infty}^\infty |\phi(s)|^2 ds$ by consider the substitution $s = 2^n t - k$.
+        \item For center, we have that
+        \begin{align*}
+        \int_{-\infty}^\infty t|\phi(2^n t - k)|^2 dt &= 2^{-n} \int_{-\infty}^\infty |\phi(s)|^2 2^{-n} (k + s) ds \tag*{Same Substituion}\\
+        &= 2^{-2n} k \int_{-\infty}^\infty |\phi(s)|^2 ds \tag*{Since $t^* = 0$}\\
+        &= 2^{-n} k \int_{-\infty}^\infty |\phi(2^n t - k)|^2 dt
+        \end{align*}
+        Hence, $t \to \phi(2^n t - k)$ has center at $2^{-n} k$.
+        \item For radius, we have that
+        \begin{align*}
+            \int_{-\infty}^\infty (t - 2^{-n} k)^2 |\phi(2^n t - k)|^2 dt &= ...
+        \end{align*}
+        Since this is a Friday morning, the instructor decided to not calculate the radius but heuristically guess what the radius is. But we note that the multiplication by $2^n$ in $\phi(2^n t - k)$ would make the signal a lot tighter, so its radius should be smaller. We eventually find that
+        \[t \mapsto \phi(2^n t - k) \text{ has radius } 2^{-n} \Delta_\phi\]
+    \end{itemize}
+    In Summary, we compare the two signals $\phi(t)$ and $\phi(2^n t - k)$ as follows:
+    \[\includegraphics[width=0.7\textwidth]{Figures/lec19-p1.png}\]
+    This means that if we have an expansion of the form
+    \[V_n \ni f(t) = \sum_{k \in \Zbb} c_{n, k} \phi(2^n t - k)\]
+    then $c_{n, k}$ is gicing information about $f$ in the neighborhood of the point $t = 2^{-n} k$ and a region of size $\sim 2^{-n} \Delta_\phi$. This gives us the expectation that
+    \[c_{n, k} \sim f(2^{-n} k) = f(ak)\]
+    where $a = 2^{-n}$ and $2^{-n} k = ak$. Hence we really do great better resolution by considering the family $\{V_n\}_{n \in \Zbb}$
+\end{remark}
+
+This is all very well, but we still need an infinite number of spaces! But here's a thought - are the $\{V_n\}_{n \in \Zbb}$ really all independent?
+
+\begin{example}
+    Let's choose $\phi(t) = \begin{cases}
+        1,\ t \in [0, 1]\\
+        0,\ \text{otherwise}
+    \end{cases}$, then $\phi(t)$ and $\phi(2^n t - k)$ looks like:
+\[\includegraphics[width=0.5\textwidth]{Figures/lec19-p2.png}\]
+    We observe that $V_0 = \spn \{\phi(t - k):\ k \in \Zbb\}$ and $V_n = \spn \{\phi(2^n t - k):\ k \in \Zbb\}$
+    A function in $V_0$ and $V_n$ look like
+\[\includegraphics[width=0.5\textwidth]{Figures/lec19-p3.png}\]
+    Judging from the image, it seems plausible that $V_0 \subset V_n$ for $n \geq 0$.
+\end{example}
+
+More generally, iterating this relation, we have the following claim
+\begin{proposition}
+When $\phi(t) = \begin{cases}
+        1,\ t \in [0, 1]\\
+        0,\ \text{otherwise}
+    \end{cases}$, the family $\{V_n: n \in \Zbb\}$ is nested:
+\[...\ V_{-2} \subset V_{-1} \subset V_0 \subset V_1 \subset V_2 \subset ...\]
+\end{proposition}
+
+The proposition above is not true in general! Hence, there's something special about this choice of $\phi(t)$ that makes it true. What's special about $\phi(t)$ is that $\phi(t)$ is a linear combination of $\phi(2t - k)$ for $k \in \Zbb$:
+    \[\phi(t) = \phi(2t - 1) + \phi(2t)\]
+This is what's called a \textbf{Two-Scale Relation}.\\
+
+\begin{definition}
+More generally, if we can find scalars $\{ p_j \}$ such that
+\[\phi(t) = \sum_{j \in \Zbb} p_j \phi(2t - j) \]
+Then we say that $\phi$ satisfies a \textbf{Two- Scale Relation}.
+\end{definition}
+
+\begin{theorem}
+    If $\phi(t)$ satisfies a 2-scale relation, then $\{V_n\}$ are nested.
+\end{theorem}
+
+We will prove this theorem next time.
+
 
 \end{document}
