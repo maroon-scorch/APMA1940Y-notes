@@ -1723,4 +1723,316 @@ Then we say that $\phi$ satisfies a \textbf{Two- Scale Relation}.
 We will prove this theorem next time.
 
 
+\newpage
+\section{Lecture 20 - 3/13/2023}
+
+Last lecture, we stated the following theorem:
+\begin{theorem}
+    If $\phi(t)$ satisfies a 2-scale relation, that is, we can find scalars $\{p_j\}$ such that
+    \[\phi(t) = \sum_{j \in \Zbb} p_j \phi(2t - j)\]
+    Then the associated $$\{V_n^\phi \coloneqq \spn \{\phi(2^n t - k)\ |\ k \in \Zbb\}$$ are nested.
+\end{theorem}
+
+\begin{proof}
+For any $n \in \Zbb$, we will show that $V_n^\phi \subset V_{n+1}^\phi$. Indeed, let $u \in V_n^\phi$, we can write
+\[u = \sum_{k \in \Zbb} c_{n, k} \phi(2^n t - k) \]
+for suitable scalars $\{c_{n, k}\ :\ k \in \Zbb\}$. By the Two Scale-Relation, we can write $\phi(2^n t - k)$ as
+\[\phi(2^n t - k) = \sum_{j \in \Zbb} p_j \phi(2[2^n t - k] - j) = \sum_{j \in \Zbb} p_j \phi(2^{n+1} t - 2k - j)\]
+Substituting this back into the summation for $u$:
+\begin{align*}
+    u &= \sum_{k \in \Zbb} c_{n, k} \phi(2^n t - k)\\
+    &= \sum_{k \in \Zbb} c_{n, k} \sum_{j \in \Zbb} p_j \phi(2^{n+1} t - 2k - j)\\
+    &= \sum_{k \in \Zbb} c_{n, k} \sum_{i \in \Zbb} p_{i - 2k} \phi(2^{n+1} t - i) \tag*{Let $i = 2k + j$}\\
+    &= \sum_{i \in \Zbb} [\sum_{k \in \Zbb} p_{i - 2k} c_{n, k}] \phi(2^{n+1}t - i) 
+\end{align*}
+Note that $[\sum_{k \in \Zbb} p_{i - 2k} c_{n, k}]$ is a suitable scalar, and by definition we have that $u \in \spn \{\phi(2^{n+1} t - i)\ |\ i \in \Zbb\} = V_{n+1}^\phi$.\\\\
+Furthermore, this equation shows how we would transform/rewrite a function in $V_n^\phi$ as a function in $V_{n+1}^\phi$.
+\end{proof}
+
+\begin{question}
+    What happens as $n \to \infty$? Is there a limit of $V_n^\phi$ as $n \to \infty$?
+\end{question}
+
+Let's be a bit more precise about $V_n^\phi$ to have a convergent behavior:
+\begin{itemize}
+    \item We obviously want to consider functions that do converge, hence
+\[V_n^\phi = \{\sum_{k \in \Zbb} c_k \phi(2^n t - k)\ :\ \{c_k\} \in \ell_2\}\]
+where $\{c_k\} \in \ell_2$ means that
+\[||\{c_k||^2 \coloneqq \sum_k |c_k|^2 < \infty\]
+Hence we really want our coefficients to be in $\ell_2$ for a nice convergence property.
+    \item We also want $f = \sum_{k \in \Zbb} c_k \phi(2^n t - k) \in V_n^\phi$ to satisfy the Resiz Basis Property, so
+    \[A ||\{c_k\}|| \leq ||f|| \leq B ||\{c_k\}||\]
+    Note that this condition forces $||f|| < \infty$.
+\end{itemize}
+
+We can derive the following properties based on these two assumptions.
+
+\begin{proposition}
+$V_n^\phi$ is a subset of $L^2(\Rbb)$.
+\end{proposition}
+
+\begin{proof}
+    For any $u \in V_n^\phi$:
+    \begin{itemize}
+        \item We have that, by the Riesz Basis Property
+    \[\int_{-\infty}^\infty |u(t)|^2 dt = ||u||^2 \leq B ||\{c_k\}|| < \infty\]
+        \item If $u \in L_2$, then by the Riesz Basis Property
+    \[A ||\{c_k\}||^2 \leq ||u||^2 < \infty\]
+    \mattie{I am uncertain why the second part is needed.}
+    \end{itemize}
+    Hence we have that $V_n^\phi \subset L^2(\Rbb)$.
+\end{proof}
+
+\begin{question}
+    Suppose we have the nested $V_n^\phi$ again such that
+    \[... V_{n}^\phi \subsetneq V_{n+1}^\phi \subsetneq ...\]
+    Is the union of this increasing sequence $L^2(\Rbb)$? To formulate this question more rigorously, suppose $f \in L^2(\Rbb)$ and $q > 0$, for any $\epsilon > 0$, does there exist some $n \in \Zbb$ and $f_n \in V_n^\phi$ such that $||f - f_n|| < \epsilon$?
+\end{question}
+
+\begin{example}
+    Suppose $\phi(t)$ is the indicator function on $[0, 1]$. Let $f \in L^2(\Rbb)$, can we find some $n \in \Zbb$ and $f_n \in V_n^\phi$ such that $||f - f_n|| < \epsilon$?\\\\
+    Well, we can always write
+    \[f_n(t) = \sum_{k \in \Zbb} c_k \phi(2^n t - k)\]
+    So this really amounts to choosing suitable coefficients $c_k$ instead. Let $h = 2^{-n}$, then consider
+    \[c_k = \frac{1}{h} \int_{-\infty}^\infty f(t) \phi(\frac{t}{h} - k) dt\]
+    Since $\phi(t)$ is the indicator function given as before, we note that
+    \[\phi(\frac{t}{h} - k) \neq 0 \iff 0 \leq \frac{t}{h} - k \leq 1 \iff kh \leq t \leq (k+1)h\]
+    Hence we have that
+    \begin{align*}
+        c_k &= \frac{1}{h} \int_{kh}^{kh + h} f(t) \phi(\frac{t}{h} - k) dt\\
+        &=  \frac{1}{h} \int_{kh}^{kh + h} f(t)(1) dt \tag*{$\phi$ is an indicator function}\\
+        &= \frac{1}{h} \int_{kh}^{kh + h} f(t) dt
+   \end{align*}
+   We observe that, if $t \in [kh, kh + h]$, then $f_n(t) = c_k$, hence 
+   \[f(t) - f_n(t) = f(t) - c_k\]
+\end{example}
+
+\newpage
+\section{Lecture 21 - 3/15/2023}
+
+\subsection{Multi-Resolution Analysis}
+
+Lat lecture we proved that
+\begin{theorem}
+    Suppose $\phi$ satisfies the Two-Scale relation, ie.
+    \[\phi(t) = \sum_{j \in \Zbb} p_j \phi(2t - j)\]
+    Then the spaces
+    \[V_n^\phi \coloneqq \spn \{\phi(2^n t - k)\ |\ k \in \Zbb\}\]
+    are nested
+    \[\subset V_0^\phi \subset V_1^\phi \subset ...\]
+\end{theorem}
+
+We then asked if the sequence of spaces have any convergent behavior, so we added the constraints that
+\[V_n^\phi \coloneqq \{\sum_{k \in \Zbb} c_{n, k} \phi(2^n t - k)\ :\ ||\{c_{n, k}\}||_{\ell^2} < \infty \}\]
+and letting the spaces satisfy the Riestz Basis Property. Then we showed that the sequences are effectively all in $L^2(\Rbb)$.\\\\
+
+We are very invested in the question of whether the sequence becomes $L^2(\Rbb)$, ie.
+\begin{question}
+    Suppose $f \in L_2(\Rbb)$ and $\epsilon > 0$, does there exists $n \in \Zbb$ and an $f_n \in V_n^\phi$ such that
+    \[||f - f_n|| < \epsilon\]
+    The fancy way of saying this is that these spaces are dense in $L^2(\Rbb)$.
+\end{question}
+
+We investigate the particular case when $\phi(t)$ is the indicator function on $[0, 1]$. The idea is to let $h = 2^{-n}$ with $n$ to be determined, and choose
+\[f_n(t) = \sum_{k \in \Zbb} c_{k} \phi(2^{n} t - k) \]
+The function $\phi(2^{-n} t - k)$ is supported on $[2^{-n} k, 2^{-n} (k + 1)] = [kh, kh + h]$ and we take
+\[c_k = \frac{1}{h} \int_{kh}^{kh + h} f(t) dt\]
+to be the average value on the interval supported.\\
+
+Then for $kh \leq t \leq kh + h$, we have the error
+\[f(t) - f_n(t) = f(t) - c_k\]
+
+Then we observe that
+\begin{align*}
+    ||f - f_n||_{[kh, kh + h]}^2 &= \int_{kh}^{kh + h} [f(t)^2 - 2 f(t) c_k + c_k^2] dt\\
+    &= \int_{kh}^{kh + h} (f(t)^2 - c_k^2) dt - 2 c_{k} \int_{kh}^{kh + h} (f(t) - c_k) dt\\
+    &= \int_{kh}^{kh + h} (f(t)^2 - c_k^2) dt \tag*{By definition of $c_k$}\\
+    &= - h c_k^2 + \int_{kh}^{kh + h} [f(t)^2] dt
+\end{align*}
+Summing over all $k \in \Zbb$, we have that
+\begin{align*}
+    ||f - f_n||^2 &= \int_{-\infty}^\infty f(t)^2 dt - h \sum_{k \in \Zbb} c_k^2
+\end{align*}
+But we note that the $ h \sum_{k \in \Zbb} c_k^2$ is the Riemann Sum for $||f||^2$, so as $n \to \infty$, $h$ would tend to $0$, so
+\[\lim_{n \to \infty} ||f - f_n||^2 = 0\]
+
+To summarize:
+\begin{proposition}
+We have that $\phi(t)$ is the indicator function of $[0, 1]$
+   \begin{itemize}
+    \item $\{\phi(t - k)\ :\ k \in \Zbb\}$ is a Riesz basis (because they are orthonormal)
+    \item $\phi(t)$ satisfies a Two Scale Relation:
+    \[\phi(t) = \phi(2t) + \phi(2t - 1)\]
+    \item $V_n^\phi$ satisfies
+    \[... \subset V_{n}^\phi \subset V_{n+1}^\phi \subset ... \to L^2(\Rbb)\]
+    ie. $V_n^\phi$ are fense in $L_2(\Rbb)$.
+\end{itemize} 
+Another way of saying this is - $\phi(t)$ generates a ``\textbf{Multi-Resolution Analysis}" (MRA) of $L_2$.
+\end{proposition}
+
+\begin{remark}
+    Historically, S. Mallot invented the term Multi-Resolution Analysis and won the Abel Prize for work in MRA.
+\end{remark}
+
+\begin{question}
+    Are there any other $\phi$ that generates an MRA of $L_2$?
+\end{question}
+
+How about the Shannon Sampling Function $\phi(t) = \frac{\sin \pi t}{\pi t}$?\\
+
+It is certainly orthonormal, so it is a Riesz basis, but does it satisfy the Two Scale relation? We first note that
+\begin{definition}
+    The equivalent definition of Two-Scale Relation in Frequency Domain:
+    \[\widehat{\phi}(2 \omega) = P(e^{-i\omega}) \widehat{\phi}(\omega)\]
+    where $P(z)$ is some power series.
+\end{definition}
+
+\begin{proposition}
+    The Shannon Sampling function satisfies the two scale relation.
+\end{proposition}
+
+\begin{proof}
+    We wish to write $\phi(t) = \sum_{j \in \Zbb} p_j \phi(2t - j)$.\\\\
+    Let's replace $t$ with $t/2$, then
+    \[\phi(2t) = \sum_{j \in \Zbb} p_j \phi(t - j)\]
+    Let's take the Fourier Transform on both sides, then
+    \begin{align*}
+        2\widehat{\phi}(2\omega) &= \sum_{j \in \Zbb} p_j e^{-i\omega j} \widehat{\phi}(\omega)\\
+        &= [\sum_{j \in \Zbb} p_j e^{-i\omega j}] \widehat{\phi}(\omega)
+    \end{align*}
+    Hence we have that
+    \[\widehat{\phi}(2\omega) = [\frac{1}{2} \sum_{j \in \Zbb} p_j e^{-i\omega j}] \widehat{\phi}(\omega)\]
+    Then sum $[\sum_{j \in \Zbb} p_j e^{-i\omega j}] = P(e^{-i\omega})$ is some power series in $e^{-i\omega}$ where
+    \[P(z) = \frac{1}{z} \sum_{j \in \Zbb} p_j z^j\]
+    It remains for us to find an appropriate polynomial. We know that $\widehat{\phi}(t)$ is the indicator function on $(-\pi, +\pi)$. A necessary condition on
+        \[\widehat{\phi}(2 \omega) = P(e^{-i\omega}) \widehat{\phi}(\omega)\ (*)\]
+        is that for $|\omega| < \pi$,
+        \[\widehat{\phi}(2\omega) = \sum_{j \in \Zbb} [\frac{1}{2} p_j] e^{-i\omega j} \]
+        The function $\widehat{\phi}(2\omega)$ is the indicator function on $(-\pi/2, +\pi/2)$. How do we write this as a sum of complex exponential, well - we need a Fourier Series expansion of $\widehat{\phi}(2\omega)$. Hence, the Fourier Coefficients tell us
+        \begin{align*}
+            \frac{1}{2} p_k &= \frac{1}{2\pi} \int_{-\pi}^\pi e^{ik\omega} \widehat{\phi}(2\omega) d\omega\\
+            &= \frac{1}{2\pi} \int_{-\pi/2}^{\pi/2} e^{ik \omega} d\omega\\
+            &= \begin{cases}
+            \frac{1}{2},\ k = 0\\
+                \frac{(-1)^{(k+1)/2}}{k\pi},\ \text{$k$ is odd}\\
+                0,\ \text{otherwise}
+            \end{cases}
+        \end{align*}
+        Replacing $k$ with $2k + 1$ (since non-zero even terms disappear), we have that
+        \[P(z) = \frac{1}{2} [1 + \sum_{k \in \Zbb} \frac{(-1)^k}{\pi} \frac{2}{2k+1} z^k]\]
+        Therefore, the Shannon sampling satisfies a Two-Scale relation (transforming this back into time domain)
+        \[\phi(t) = \phi(2t) + \sum_{k \in \Zbb} \frac{(-1)^k}{\pi} \frac{2}{2k+1} \phi(2t - 2k - 1)\]
+\end{proof}
+
+\newpage
+\section{Lecture 22 - 3/17/2023}
+
+Let's recall the question we had last time -
+\begin{question}
+    Does the Shannon Sampling Function $\phi(s) = \frac{\sin \pi s}{\pi s}$ generate a MRA of $L^2(\Rbb)$?
+\end{question}
+
+We already know that
+\begin{itemize}
+    \item $\{\phi(s - j)\}_{j \in \Zbb}$ are orthonormal - Riesz basis with $A = B = 1$
+    \item $\phi$ satisfies a two-scale relation (shown last lecture)
+    \item What happens when $V_n \to L^2(\Rbb)$?
+    \item For all $f \in L^2(\Rbb)$, does there exist $f_n \in V_n$ such that
+    \[f_n \to f \text{ as } n \to \infty\]
+    In other words,
+    \[||f - f_n|| = 0 \text{ as } n \to \infty\]
+\end{itemize}
+
+\begin{question}
+    How can we construct such $f_n$?
+\end{question}
+
+We want to use Parserval's Identity to construct on $\widehat{f}_n$ instead, then we know that
+\[||f - f_n|| = \frac{1}{2\pi} ||\widehat{f} - \widehat{f}_n||\]
+Hence, it suffices for us to \ul{construct a sequence of a functions in the frequency domain}, this will create a series of functions in the time domain that approximates $f$ equally well.
+
+\begin{theorem}
+    The Shannon Sampling Function $\phi(s) = \frac{\sin \pi s}{\pi s}$ generates a MRA of $L^2(\Rbb)$.
+\end{theorem}
+ 
+\begin{proof}
+Let's choose $\widehat{f}_n(\omega)$ as follows:
+\[\widehat{f}_n(\omega) = \begin{cases}
+    \widehat{f}(\omega),\ |\omega| < \Omega_n\\0, \text{otherwise}
+\end{cases}\]
+\ul{We postpone the construction of $\Omega_n$ and will choose them appropriately later on in this proof}. We intuitively want to choose $\Omega_n$ such that $\Omega_n \to \infty$ as $n \to \infty$, then
+\[||\widehat{f} - \widehat{f}_n||^2 = \int_{|\omega| > \Omega_n} |\widehat{f}(\omega)|^2 d\omega \to 0 \text{ as } \Omega_n \to \infty\]
+Then, by the Shannon Sampling Theorem, we have that
+\[f_n(t) = \sum_{k \in \Zbb} f_n(ka) \phi(\frac{t}{a} - k)\ (\dagger)\]
+provided that $a = \frac{\pi}{\Omega_n}$. Our goal now is to \ul{choose $\Omega_n$ such that $f_n \in V_n$}, ie. we want
+\[f_n \in \spn \{\phi(2^n t - k)\ :\ k \in \Zbb\}\]
+Indeed, if we choose $\Omega_n = 2^n \pi$, then $a = \frac{\pi}{\Omega_n} = 2^{-n}$, substituting back into $(\dagger)$ gives
+\[f_n(t) = \sum_{k \in \Zbb} f_n(ka) \phi(2^n t - k)\]
+Thus, we have that $f_n \in V_n$.
+\end{proof}
+
+\begin{question}
+    How do we use Multi-Resolution Analysis in practice?
+    \[\{0\}... \subset V_{-2} \subset V_{-1} \subset V_0 \subset V_1 \subset V_2 \subset ...\ L^2(\Rbb)\]
+    Note that as we go to $V_{-\infty}$, we only have the constant zero function left. In principle we can pick any $f \in L^2(\Rbb)$ and compute the $\{f_n \in V_n\}$ sequence of approximation of $f$ for signal analysis, but it seems somewhat wasteful since we can retrieve some information about $f_{n-1} \in V_{n-1}$ just based on $f_n \in V_n$, so there's inefficiency in storage and duplication of information.
+\end{question}
+
+Now consider $f_n \in V_n \subset V_{n+1} \ni f_{n+1}$. We can write $f_{n+1} = f_n + (f_{n+1} - f_n)$, ie. we work with the sequence of differences instead $\{f_{n+1} - f_n\}_{n \in \Zbb}$, observe that
+\begin{itemize}
+    \item As $f_n \to f$, $f_{n+1} - f_n \to 0$, so the difference is getting smaller.
+    \item This leads us to suspect tht this sequence is simpler than saving $\{f_n\}$.
+    \item Ex. We don't lost any information, if we have $f_0$, and we want $f_4$, then
+    \[f_4 = (f_4 - f_3) + (f_3 - f_2) + (f_2 - f_1) + (f_1 - f_0) + f_0\]
+\end{itemize}
+
+\begin{question}
+    Can we quantify in what sense $f_{n+1} - f_n$ is ``simpler"?
+\end{question}
+
+\begin{example}
+    Let $\phi(t)$ be the inidcator function on $[0, 1]$, then we still have that $f_{n+1} - f_n \in V_n$ so it doesn't seem simpler, but let's try to investigate this in detail. What does $f_{n+1} - f_n$ look like? Well, let's first examine $f_n$ and $f_{n+1}$:
+    \[\includegraphics[width=0.6\textwidth]{Figures/lec22-1.png}\]
+    Suppose we are given $f_{n+1}$ and we want to downgrade to $f_n$. Let's choose 
+    \[c_k^{(n)} = \frac{1}{2}[c^{(n+1)}_{2k} + c^{(n+1)}_{2k+1}]\ \text{(Best Choice)}\]
+    Now, for $kh \leq t \leq (k+1)h$, we have that
+    \[f_{n+1}(t) = c_{2k}^{(n+1)} \phi(\frac{2t}{h} - 2k) + c_{2k+1}^{(n+1)} \phi(\frac{2t}{h} - 2k - 1)\]
+    \[f_n(t) = c_k^{(n)} \phi(\frac{t}{h} - k)\]
+    Using the 2-Scale Relation, we can write
+    \[\phi(\frac{t}{h} - k) = \phi(\frac{2t}{h} - 2k) + \phi(\frac{2t}{h} - 2k - 1)\]
+    Hence we write
+    \[f_n(t) = c_k^{(n)} [\phi(\frac{2t}{h} - 2k) + \phi(\frac{2t}{h} - 2k - 1)]\]
+    Hence the diffeence is
+    \begin{align*}
+        f_{n+1}(t) - f_n(t) &= d_L \phi(\frac{2t}{h} - 2k) + d_R \phi(\frac{2t}{k} - 2k - 1) \tag*{$d_L = c_{2k}^{(n+1)} - c_k^{(n)}$ and $d_R = c_{2k + 1}^{(n+1)} - c_k^{(n)}$}
+    \end{align*}
+    We observe, however, that $-d_L = d_R$. Hence, we have that
+    \[f_{n+1}(t) - f_n(t) = d_k^{(n)}  [\phi(\frac{2t}{h} - 2k) - \phi(\frac{2t}{h} - 2k - 1)]\]
+    where $d_k^{(n)} = d_L$.\\\\
+    Let's define
+    \[\psi(s) = \phi(2s) - \phi(2s - 1) \]
+    Then we have that
+    \[\psi(\frac{t}{h} - k) = \phi(\frac{2t}{h} - 2k) - \phi(\frac{2t}{h} - 2k - 1)\]
+    Hence we have that
+    \[f_{n+1}(t) - f_n(t) = d_k^{(n)} \psi(\frac{t}{h} - k),\ kh \leq t \leq (k+1)h\]
+    The same arguments gives that, for a general $t$, for $h = 2^{-n}$
+    \[f_{n+1}(t) - f_n(t) = \sum_{k \in \Zbb} d_k^{(n)} \psi(\frac{t}{h} - k) = \sum_{k \in \Zbb} d_k^{(n)} \psi(2^n t - k)\]
+    Hence we have that
+    \[f_{n+1} - f_n \in \spn \{\psi(2^n t - k)\ :\ k \in \Zbb\}\]
+    Why don't we call $\spn \{\psi(2^n t - k)\ :\ k \in \Zbb\}$ as $W_n$? Hence, we have that $f_{n+1} - f_n \in W_n$ for all $n$.
+\end{example}
+
+\begin{remark}
+As a final remark, what does the function $\psi(s)$ look like:
+    \[\includegraphics[width=0.6\textwidth]{Figures/lec22-2.png}\]
+    This is the Haar Wavelet again!
+\end{remark}
+
+
+\begin{remark}
+    Why do you think we are calling these spaces $W_n$? Wavelets!
+\end{remark}
+
+
+
+
 \end{document}
