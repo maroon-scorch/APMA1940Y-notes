@@ -2032,6 +2032,120 @@ As a final remark, what does the function $\psi(s)$ look like:
     Why do you think we are calling these spaces $W_n$? Wavelets!
 \end{remark}
 
+\newpage
+\section{Lecture 23 - 3/20/2023}
+% hint for problem 4 - write 1 as sum of somethings
+
+\subsection{Basis in Infinite Dimensions}
+
+\begin{question}
+    Why do we use coordinates to represent vectors in $\Rbb^3$? Given a vector $\Vec{f} \in \Rbb^3$, we want to manipulate and understand the vector without having to visualize it or draw it.
+\end{question}
+
+What we do is we introduce the standard basis vectors $\Vec{e_1}, \Vec{e_2}, \Vec{e_3}$, which satisfies the properties
+\begin{itemize}
+    \item $|\Vec{e_j}| = 1$
+    \item $\Vec{e_j} \cdot \Vec{e_i} = 0$ with $i \neq j$
+    \item Moreover,
+    \[\Vec{f} = f_1 \Vec{e_1} + f_2 \Vec{e_2} + f_3 \Vec{e_3}\]
+    And we can deduce that
+    \[f_j = \Vec{e_j} \cdot \Vec{f}\]
+    \item So we have that
+    \[\Vec{f} = \sum_{k = 1}^3 (\Vec{e_k} \cdot \Vec{f}) \Vec{e_k}\]
+    \item Using Pythagorean Theorem, we have that
+    \[|\Vec{f}|^2 = \sum_{k = 1}^3 = |\Vec{f} \cdot \Vec{e_k}|^2 \]
+    \item We can also compare different vectors
+    \[|\Vec{f} - \Vec{g}|^2 = \sum |\Vec{f} \cdot \Vec{e_k}  - \Vec{g} \cdot \Vec{e_k}|^2\]
+    \[\Vec{f} \cdot \Vec{g} = \sum_{k=1}^3 (\Vec{f} \cdot \Vec{e_k})(\Vec{g} \cdot \Vec{e_k})\]
+    \[\Vec{f} \cdot \Vec{g} = 0 \iff \Vec{f} \bot \Vec{g}\]
+\end{itemize}
+The point here is that these standard orthonormal bases allowed us to obtain an \ul{orthogonal decomposition} of $\Rbb^3$:
+\[\Rbb^3 = \spn \{\Vec{e_1}\} \oplus \spn \{\Vec{e_2}\} \oplus \spn \{\Vec{e_3}\}\]
+
+\begin{question}
+    Can we do the same for $L^2(\Rbb)$? $L^2(\Rbb)$ is infinite dimensional, can we find a suitable basis?
+\end{question}
+
+What about Fourier Transforms, we know that
+\[f(t) = \frac{1}{2\pi} \int_{-\infty}^\infty e^{+i\omega t} \widehat{f}(\omega) d\omega\]
+where $\widehat{f}(\omega) = \int_{-\infty}^\infty e^{-i\omega t} f(t) dt$.\\
+
+Viewing the integral as infinite sums, we can write
+\[L^2(\Rbb) = \spn \{e^{i\omega t}\ |\ \omega \in \Rbb\}\]
+This is nice, but the spanning list is an uncountable list. There are also some inherent limitations with Fourier Transforms (time-frequency, not being able to detect translation, etc.)\\
+
+Can we find something closer to the analogy in $\Rbb^3$ instead?
+
+\subsection{Haar Wavelet}
+
+Let $\varphi(t)$ be the indicator function on $[0, 1]$, we have shown previously that
+\[\varphi(t) = \varphi(2t) + \varphi(2t - 1)\]
+which means that
+\[V_n = \spn \{\varphi(2^n t - k)\ |\ k \in \Zbb\}\]
+satisfy
+\[\{0\} ... V_{-1} \subset V_0 \subset V_1 \subset ... L^2(\Rbb)\]
+
+In last lecture, we considered $f_n = f_{n-1} + (f_n - f_{n-1})$, a small miracle happened where we found
+\[f_{n+1} - f_n \in \spn \{\psi(2^n t - k): k \in \Zbb\}\]
+for $\psi(t) = \varphi(2t) - \varphi(2t - 1)$ is the Haar Wavelet, and we have a pair
+\begin{itemize}
+    \item $\psi(t) = \varphi(2t) - \varphi(2t - 1)$
+    \item $\varphi(t) = \varphi(2t) + \varphi(2t - 1)$
+\end{itemize}
+
+We observe that
+\[f_n = f_{n-1} + (f_n - f_{n-1})\]
+with $f_n \in V_n$, $f_{n-1} \in V_{n-1}$ and $(f_n - f_{n-1}) \in W_{n-1}$. This suggests that we are writing
+\[V_n = V_{n-1} + W_{n-1}\]
+
+What is the intersection $V_{n-1} \cap W_{n-1}$? Well, we examine their graphs first and find:
+\[\includegraphics[width=0.4\textwidth]{Figures/lec23-1.png}\]
+Following this intuition and using engineering's induction, we have that zero function is the only function that can be in the intersection, hence $V_{n-1} \cap W_{n-1} = 0$.\\
+
+Referencing the graph above, we also note the product of any functions in $V_{n-1}$ and any function in $W_{n-1}$ must be $0$, hence we have that $V_{n-1} \bot W_{n-1}$.\\
+
+Thus, we conclude that:
+\begin{proposition}
+For $\varphi(t)$ being the indicator function on $[0, 1]$, we have an orthogonal decomposition:
+\[V_n = V_{n-1} \oplus W_{n-1}\]    
+\end{proposition}
+
+As a corollary, writing out the direct sum above and noting that ``$V_{-\infty} = 0$", we have that
+\begin{corollary}
+    Let $\varphi(t)$ be same as before,
+    \[V_n = \bigoplus_{k \leq n} W_k\]
+\end{corollary}
+
+``Taking $n \to \infty$ on both sides" (\mattie{being very unrigorous here}), we have that
+\[L^2(\Rbb) = \bigoplus_{k \in \Zbb} W_k\]
+This is the intuitive way to think about this, but this equality actually shouldn't hold. THe actual equality, assuming some background in Topology, should be
+\[L^2(\Rbb) = \overline{\bigoplus_{k \in \Zbb} W_k}\]
+
+\begin{definition}
+    This decomposition of $L^2(\Rbb)$ given above is an example of \textbf{Wavelet Decomposition}.
+\end{definition}
+
+\begin{remark}
+R. E. A. C. Paley is a mathematician in the 1930s at Cambridge. He was trying to find these ``orthogonal decomposition" of these function spaces, using ideas essentially similar (or precursor to ) the Wavelet Decompositions above.    
+\end{remark}
+
+Wait... there's more! We observe that
+\[V_n = \spn \{\varphi(2^n t - k)\} \text{ is orthogonal}\]
+\[W_n = \spn \{\psi(2^n t - k): k \in \Zbb\}\]
+Is the collection $\phi(2^n t - k)$ for $k \in \Zbb$ an orthogonal basis?
+
+Yes! Here's a pictorial intuition on why this should be true:
+\[\includegraphics[width=0.5\textwidth]{Figures/lec23-2.png}\]
+
+So what does this all mean? Well, we can write
+\begin{align*}
+    L^2(\Rbb) \ni f(t) &= \sum_{n \in \Zbb} \sum_{k \in \Zbb} d^{(n)}_k \psi(2^n t - k)
+\end{align*}
+where $\psi(2^n t - k)$ are all orthogonal varying over $(n, k) \in \Zbb$, and 
+\[d^{(n)}_k \coloneqq \frac{\langle f, \psi(2^n t - k) \rangle}{||\psi(2^n t - k)||^2} \]
+
+We claim, and will show next lecture, that using the Continuous Wavelet Transform
+\[d^{(n)}_k \sim (W_\psi f)(2^{-n} k, 2^{-n})\]
 
 
 
