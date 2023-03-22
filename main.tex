@@ -956,6 +956,10 @@ This suggests that we can detect $\mu$ locally by seeing how the Wavelet transfo
     \end{enumerate}
 \end{example}
 
+\begin{remark}
+    Technically, the Mexican Hat Wavelet is not a wavelet, if we are defining them in the context of Wavelet Decompositions, see Lecture $23$ instead.
+\end{remark}
+
 \newpage
 \section{Lecture 11 - 2/17/2023}
 
@@ -2147,6 +2151,91 @@ where $\psi(2^n t - k)$ are all orthogonal varying over $(n, k) \in \Zbb$, and
 We claim, and will show next lecture, that using the Continuous Wavelet Transform
 \[d^{(n)}_k \sim (W_\psi f)(2^{-n} k, 2^{-n})\]
 
+\newpage
+\section{Lecture 24 - 3/22/2023}
+\subsection{Wavelet Decomposition}
+The story so far...
+\begin{itemize}
+    \item We have constructed a Wavelet Decomposition (orthgonal decomposition)
+    \[L^2(\Rbb) = \overline{\bigoplus_{n \in \Zbb} W_n}\]
+    (though since this is an APMA class, we are making the cardinal sin of omitting the closure sign sometimes), where $W_n = \spn \{\psi(2^n t - k)\ :\ k \in \Zbb\}$ where $\psi$ is the wavelet associated with the scaling function $\varphi$.
+    \item We also require that $\varphi$ should generate a Multi-Resolution Analysis of $L^2(\Rbb)$, then we can consider
+    \[V_{n+1} = V_n \oplus W_n\]
+    where $V_n = \spn \{\varphi(2^n t - k)\ :\ k \in \Zbb\}$.
+    \item What was surprising about how we obtained the Wavelet Decomposition earlier is that the deisred $\psi$ exists to generate all $W_n$.
+\end{itemize}
 
+\begin{remark}
+The historical development of Wavelet Decomposition came from a parallel development:
+\begin{itemize}
+    \item The Computer Science and Numerical Analysis side - $BPX$ (Bramble-Pasciak-Xu, Math Comp, 1992) algorithm has a multi-grid algorithm for solving large linear systems of equations efficently. Numerical results showed it's growing roughly $O(1 + \log^2 \frac{H}{h})$.
+    \item The Wavelet side - Oswald used knowledge of wavelet decomposition to show the runtime is uniformly bounded, hence it is $O(1)$.
+\end{itemize}
+Oswald presented this in the middle of a conference, Bramble asked in the middle of conference and disagreed with Oswald's result. Later, Xu told Ainsworth the rest of the story - he didn't believe it either, and eventually Bramble and Xu cranked up the number $\frac{H}{h}$ by making $h$ astronomically small, and found that it is uniformly bounded eventually.
+\end{remark}
 
+Back to wavelets, essentially this means we have , for any $f(t) \in L^2(\Rbb)$, we can write
+    \[f(t) = \sum_{n \in \Zbb} \sum_{k \in \Zbb} d_k^{(n)} \psi(2^n t - k)\]
+The advancement we have made here is that the $d_k^{(n)}$ here are thought of as ``digital signals".
+
+\begin{question}
+    How would we generate $\{d_k^{(n)}\}$? What do they tell us?
+\end{question}
+
+In addition, in the context of the one example of wavelet that forms the Wavelet Decomposition, we have that the $\{\psi(2^n t - k)\}$ are orthogonal. They are however not orthonormal, as:
+\begin{align*}
+    \int_{-\infty}^\infty \psi(2^n t - k)^2 dt &= 2^{-n} \int_{-\infty}^\infty \psi(s)^2 ds\\
+    &= 2^{-n} ||\psi||^2
+\end{align*}
+Since they are orthogonal and assuming $||\psi||^2 = 1$, we have that 
+\[d_k^{(n)} = 2^n \int_{-\infty}^{\infty} f(t) \psi(2^n t - k) dt, \forall k, \forall n\]
+This is really similar to ``coordinates".
+
+\begin{question}
+    Is this the best option available?
+\end{question}
+
+Let's recall the Continuous Wavelet Transform:
+\[(W_\psi f)(\alpha, a) = \frac{1}{\sqrt{a}} \int_{-\infty}^{\infty} f(t) \psi(\frac{t = \alpjha}{a}) dt\]
+If we choose $a = 2^{-n}$ and $\frac{\alpha}{a} = k$, so $\alpha = 2^{-n} k$, then
+\[(W_\psi f)(2^{-n} k, 2^{-n}) = d_k^{(n)} \cdot 2^{-n/2}\]
+Hence, we see that our Wavelet Decomposition coincides with Continuous Wavelet Transformations!
+
+\begin{remark}
+    Another story - Cech mathematician Ivo Babuska. Ainsworth wrote a paper with him after they had a big argument at a conference.\\
+
+    At a conference, a notation was used that $a \approx b$ means there's a constant multiplied to $b$ in the estimation. Then Babuska asked - what is the constant in this estimation?\\
+
+    The presenter argued back - "I don't care about the constant".
+    One of the students of ETH Zurich said - once you talk to Babuska at the first floor, he immediately jumps into the sky, hence Babuska eventually would understand the talk and would give the talk himself.\\
+
+    But the presenter argued back, so eventually Babuska said ``do you care about the constant in your salary if it was changed to $1$?"
+\end{remark}
+
+Anyways, the connection between Wavelet Decomposition and CWT seems to be interesting. We already know that information about decay of $(W_\psi f)(2^{-n} k, w^{-n})$ and local smoothness of $f$. This suggests that examining the ``coordinates" of $f$ in $L_2(\Rbb)$ with the Wavelet Decomposition can give us information about the local smooth of $f$.\\
+
+We observe that $0 \leq 2^n t - k \leq 1$ if and only if $k 2^{-n} \leq t \leq (k+1)2^{-n}$, hence
+\[\psi(2^n t - k) \text{ is supported in } k 2^{-n} \leq t \leq (k+1) 2^{-n}\]
+
+We consider the graph:
+\[\includegraphics[width=0.5\textwidth]{Figures/lec24-1.png}\]
+\begin{itemize}
+    \item For spatial information, $d_k^{(n)}$ tells information about the function on the interval $[2^{-n} k, 2^{-n} (k+1)]$, ie. we have a spatial localisation
+    \item For frequency information, $d_k^{(n)}$ tells about us for frequency are the frequency around $2^n$.
+    \item As $n$ gets bigger, this range of the Haar Wavelet tightens up, so we get better information about the space.
+    \item As $n$ gets smaller, this range of the Haar Wavelet gets larger, so we lose information about the space but concentrate on lower range of Frequency.
+\end{itemize}
+
+\subsection{The Discrete Wavelet Transform}
+
+It turns out we will compute $\{d_k^{(n)}\}$ very efficiently, without appealing to integrals, using a method called \textbf{Discrete Wavelet Transform}.\\
+
+Consider a function $f(t)$, but we really want to start with $f_n \in V_n$ such that $||f - f_n||$ is small enough. The idea is to write
+\[f_n = \sum_{k \in \Zbb} c_k^{(n)} \varphi(2^n t - k)\]
+
+Our input are the list of coefficients $c_k^{(n)}$. We want t apply some transformations on the list so that we obtain the $d_k^{(n)}$:
+
+\[\includegraphics[width=0.5\textwidth]{Figures/lec24-2.png}\]
+
+The Discrete (or Fast) Wavelet Transform does this in efficient time with $O(1)$ space complexity, meaning there's no new memory allocations. It also turns out this is a bijective transforms so you could start with $\{d_k^{(n)}\}$ and getting back $\{c_k^{(n)}\}$ just as fast. We will talk more about this next lecture.
 \end{document}
