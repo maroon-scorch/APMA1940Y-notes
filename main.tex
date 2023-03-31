@@ -2196,7 +2196,7 @@ This is really similar to ``coordinates".
 \end{question}
 
 Let's recall the Continuous Wavelet Transform:
-\[(W_\psi f)(\alpha, a) = \frac{1}{\sqrt{a}} \int_{-\infty}^{\infty} f(t) \psi(\frac{t = \alpjha}{a}) dt\]
+\[(W_\psi f)(\alpha, a) = \frac{1}{\sqrt{a}} \int_{-\infty}^{\infty} f(t) \psi(\frac{t - \alpha}{a}) dt\]
 If we choose $a = 2^{-n}$ and $\frac{\alpha}{a} = k$, so $\alpha = 2^{-n} k$, then
 \[(W_\psi f)(2^{-n} k, 2^{-n}) = d_k^{(n)} \cdot 2^{-n/2}\]
 Hence, we see that our Wavelet Decomposition coincides with Continuous Wavelet Transformations!
@@ -2226,7 +2226,7 @@ We consider the graph:
     \item As $n$ gets smaller, this range of the Haar Wavelet gets larger, so we lose information about the space but concentrate on lower range of Frequency.
 \end{itemize}
 
-\subsection{The Discrete Wavelet Transform}
+\subsection{Discrete Wavelet Transform}
 
 It turns out we will compute $\{d_k^{(n)}\}$ very efficiently, without appealing to integrals, using a method called \textbf{Discrete Wavelet Transform}.\\
 
@@ -2237,5 +2237,137 @@ Our input are the list of coefficients $c_k^{(n)}$. We want t apply some transfo
 
 \[\includegraphics[width=0.5\textwidth]{Figures/lec24-2.png}\]
 
-The Discrete (or Fast) Wavelet Transform does this in efficient time with $O(1)$ space complexity, meaning there's no new memory allocations. It also turns out this is a bijective transforms so you could start with $\{d_k^{(n)}\}$ and getting back $\{c_k^{(n)}\}$ just as fast. We will talk more about this next lecture.
+The Discrete (or Fast) Wavelet Transform does this in efficient time with $O(n)$ time complexity and $O(1)$ space complexity, meaning there's no new memory allocations. It also turns out this is a bijective transforms so you could start with $\{d_k^{(n)}\}$ and getting back $\{c_k^{(n)}\}$ just as fast. We will talk more about this next lecture.
+
+\newpage
+\section{Lecture 25 - 3/24/2023}
+
+\subsection{Discrete Wavelet Transform - Continued}
+
+Consider the family of Haar Wavelets given by
+\[\varphi(t) = \begin{cases}
+    1,\ t \in [0, 1]\\
+    0,\ \text{otherwise}
+\end{cases}\]
+
+\begin{question}[Goal of the Algorithm]
+Suppose for some function $f \in L_2(\Rbb)$, we are given the decompositions
+\[f_{n + 1}(t) = \sum_{k \in \Zbb} c_k^{(n+1)} \phi(2^{n+1} t - k)\]
+ie. we are given the input of the coefficients $\{c_k^{(n+1)}\}_{k \in \Zbb}$, we want to split:
+\[\begin{tikzcd}
+	{f_{n+1}(t)} & {=} & {f_n(t)} & {+} & {g_n(t)} \\
+	{V_{n+1}} & {=} & {V_n} & \oplus & {W_n}
+	\arrow["\in", from=1-1, to=2-1]
+	\arrow["\in", from=1-3, to=2-3]
+	\arrow["\in", from=1-5, to=2-5]
+\end{tikzcd}\]  
+In other words, we want to write
+\[f_{n+1}(t) = f_n(t) + g_n(t) = \sum_{k \in \Zbb} c_k^{n} \varphi(2^n t - k) + \sum_{k \in \Zbb} d_k^{n} \psi(2^n t - k)\]
+So we wnat to find the coefficients $c_k^{n}$ and $d_k^{n}$.\\
+
+To summarize:
+\begin{itemize}
+    \item \textbf{Input: } The coefficients $\{c_k^{(n+1)}\}$
+    \item \textbf{Goal: } Find the coefficients $\{d_k^{(n)}\}$ and $\{c_k^{(n)}\}$.
+\end{itemize}
+\[\includegraphics[width=0.4\textwidth]{Figures/lec25-1.png}\]
+\end{question}
+
+We first make the observation that,
+\begin{lemma}\label{lem::lec25-sub}
+We have the following two properties for the Haar Wavelet Family:
+\begin{itemize}
+    \item $\phi(2t) = \frac{1}{2} [\phi(t) + \psi(t)]$
+    \item $\phi(2t - 1) = \frac{1}{2}[\phi(t) - \psi(t)]$
+\end{itemize}
+Hence, it follows that
+\begin{align*}
+    &\phi(2^{n+1} t - 2k) = \phi(2(2^n t - k)) = \frac{1}{2} [\phi(2^n t - k) + \psi(2^n t - k)]\\
+    &\phi(2^{n+1} t - 2k - 1) = \phi(2(2^n t - k) - 1) = \frac{1}{2} [\phi(2^n t - k) - \psi(2^n t - k)]
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+    By the Two-Scale Relation, we have that
+    \[\phi(t) = \phi(2t) + \phi(2t - 1)\]
+    Furthermore, by the definition of $\psi(t)$, we have that
+    \[\psi(t) = \phi(2t) - \phi(2t - 1)\]
+    The result in the lemma comes from solving $\phi(2t)$ and $\phi(2t - 1)$ in this system of linear equations.
+\end{proof}
+
+\begin{proposition}\label{prop::lec25-rewrite-rule}
+    Given the decomposition as before:
+    \[f_{n + 1}(t) = \sum_{k \in \Zbb} c_k^{(n+1)} \phi(2^{n+1} t - k)\]
+    then we have that
+    \[c_k^{(n)} = \frac{1}{2} [c_{2k}^{(n+1)} + c_{2k+1}^{(n+1)}] \text{ and } d_k^{(n)} = \frac{1}{2} [c_{2k}^{(n+1)} - c_{2k+1}^{(n+1)}]\]
+\end{proposition}
+
+\begin{proof}
+    We first want to rewrite the summation $f_{n+1}(t)$ into its even and odd parts:
+    \[f_{n+1}(t) = \sum_{k \in \Zbb} c_{2k}^{(n+1)} \phi(2^{n+1} t - 2k) + \sum_{k \in \Zbb} c_{2k+1}^{(n+1)} \phi(2^{n+1} t - 2k - 1)\]
+    By Lemma~\ref{lem::lec25-sub}, we have that
+    \begin{align*}
+        f_{n+1}(t) &= \sum_{k \in \Zbb} c_{2k}^{(n+1)} \frac{1}{2} [\phi(2^n t - k) + \psi(2^n t - k)] + \sum_{k \in \Zbb} c_{2k+1}^{(n+1)} \frac{1}{2} [\phi(2^n t - k) - \psi(2^n t - k)]\\
+        &= \sum_{k \in \Zbb} \frac{1}{2}[c_{2k}^{(n+1)} + c_{2k+1}^{(n+1)}] \phi(2^n t - k) + \sum_{k \in \Zbb} \frac{1}{2} [c_{2k}^{(n+1)} - c_{2k+1}^{(n+1)}] \psi(2^n t - k)
+    \end{align*}
+    A comparison of coefficients tells us that
+    \begin{itemize}
+        \item $c_k^{(n)} = \frac{1}{2} [c_{2k}^{(n+1)} + c_{2k+1}^{(n+1)}]$
+        \item $d_k^{(n)} = \frac{1}{2} [c_{2k}^{(n+1)} - c_{2k+1}^{(n+1)}]$
+    \end{itemize}
+\end{proof}
+
+\subsection{Complexity of DWT}
+
+\begin{question}
+    In practice, how would we implement this as an algorithm? How much does the algorithm cost?
+\end{question}
+
+Suppose we are given with $N$ pieces of memory as follows:
+
+\[\includegraphics[width=0.6\textwidth]{Figures/lec25-2.png}\]
+
+We rewrite each group of $(c_{2k}^{(n+1)}, c_{2k+1}^{(n+1)})$ into $c_k^{n}$ and $d_k^{(n)}$ as per Proposition~\ref{prop::lec25-rewrite-rule}, this process is linear time with respect to $N$.\\
+
+Suppose we want all the possible $d$ coefficients that the input can generate, ie.:
+\[\includegraphics[width=0.6\textwidth]{Figures/lec25-3.png}\]
+
+We find $c_0^{(n})$ and $c_1^{(n)}$, and rewrite them as $c_0^{(n-1})$ and $d_0^{(n-1)}$, and so on. We repeat this process until we have rewrote the entire sequence into $d$-coefficients.\\
+
+Note that there are no additional memories created. Furthermore, the number of elements we have to scan through in each step is divided by $2$ as we go on. Hence, if we are given $N$ pieces of memories to start with, the run time is
+\[C N + C \frac{N}{2} + C \frac{N}{4} + ... \approx 2 CN\]
+where $C$ is some constant. Hence, we see the entire algorithm is in $O(n)$ time.
+
+\begin{remark}
+    Discrete Wavelet Transform has the optimal time complexity $O(n)$ (since we need to see every data at least once) and space complexity $O(1)$.
+\end{remark}
+
+\subsection{Inverse Wavelet Transform}
+
+The Inverse Wavelet Transform just does the opposite of what the Discrete Wavelet Transform does.\\
+
+The idea is similar - suppose we are given $\{c_k^{(n)}, d_k^{(n)}\}$ for $k \in \Zbb$, then we can write
+\[c_{2k}^{(n+1)} = c_k^{(n)} + d_k^{(n)}\]
+\[c_{2k+1}^{(n+1)} = c_k^{(n)} - d_k^{(n)}\]
+The algorithm is nearly identical as the one above and also runs in $O(N)$ time (but we only do it for one step).
+
+\mattie{need to clarify}
+This gives
+\[f_{n+1}(t) = \sum_{k \leq n} \sum_k d_k^{(\ell)} \psi(2^\ell t - k)\]
+and
+\[d_k^{(\ell)} = 2^{\ell/2} \int_{-\infty}^{\infty} f(t) \psi(2^\ell t - k) dt\]
+
+\begin{remark}
+    It turns out that
+    \begin{enumerate}
+        \item If $f$ is Lipschitz at $\alpha$ with $|f(t) - f(\alpha)| \leq K(\alpha) |t - \alpha|^\gamma$ where $K(\alpha)$ is some constant dependent on $\alpha$, then we have that
+        \[(W_\psi f)(\alpha, a) \sim a^{\frac{1}{2} + \gamma} K(\alpha)\]
+        Hence, $(W_\psi f)(2^{-n} k, 2^{-n}) \sim (2)^{-(\frac{1}{2} + \gamma)n} K(2^{-n} k)$.
+        \item If $f \in C^1$, then $|f(t) - f(\alpha)| \leq K(\alpha) |t - \alpha|$, in this case $\gamma = 1$, hence
+        \[K(\alpha) \sim |f(\alpha)|\]
+        and we have that
+        \[(W_\psi f)(2^{-n} k, 2^{-n}) \sim 2^{-3n/2} f(2^{-n} k)\]
+    \end{enumerate}
+\end{remark}
+
 \end{document}
