@@ -2370,4 +2370,168 @@ and
     \end{enumerate}
 \end{remark}
 
+\newpage
+\section{Lecture 26 - 4/3/2023}
+
+\subsection{Multi-Dimensional Wavelets}
+
+Let $\varphi$ be a scaling function that generates an MRA of $L^2(\Rbb)$, and $\psi$ be the corresponding wavelet. The question is - can we generate $(a)$ an MRA of $L^2(\Rbb^2)$ and $(b)$ wavelet decomposition of $L^2(\Rbb^2)$?\\
+
+Indeed, let $f \in L^2(\Rbb^2)$ be given and fix $y \in \Rbb$, then
+\[f(\bullet, y): \Rbb \to \Rbb \text{ is a univariate function in $L^2(\Rbb)$}\]
+Hence, we can write
+\[f(x, y) = \sum_{m \in \Zbb} \sum_{k \in \Zbb} d_k^{(m)}(y) \psi(2^m x - k)\]
+where the coefficients $d_k^{(m)}(y)$ depend on the indices and $y$.\\\\
+
+Then for fixed $m, k \in \Zbb$, we decompose
+\begin{align*}
+    d_k^{(m)}(y) = \sum_{n \in \Zbb} \sum_{\ell \in \Zbb} d_{k, \ell}^{(m, n)} \psi(2^n y - \ell)
+\end{align*}
+for suitable constants $\{d_{k, \ell}^{(m, n)}$. Combining this gives
+\[f(x, y) = \sum_{(m, n) \in \Zbb^2} \sum_{(k, \ell) \in \Zbb^2} d_{k, \ell}^{(m, n)} \psi(2^m x - k) \psi(2^n y - \ell) \quad (\dagger)\]
+which is the bivariate wavelet decomposition of $f \in L^2(\Rbb^2)$, which is really the tensor product of the two univariate decompositions.\\
+
+In particular, if $\{\psi(\bullet - k)\}$ are orthonormal, then $(\dagger)$ is still an orthogonal decomposition, hence
+\[||f||_{L^2(\Rbb^2)} = \sum_{(m, n) \in \Zbb^2} \sum_{(k, \ell) \in \Zbb^2} 2^{m + n} |d_{k, \ell}^{(m, n)}|^2\]
+
+Essentially everything in $\Rbb^1$ can be generalized to $\Rbb^d$ using tensor products.
+\begin{question}
+    How to compute the $d_{k, \ell}^{(m, n)}$ efficiently?
+\end{question}
+
+Let's recall in the $1D$ case of Haar Wavelets, 
+\[\includegraphics[width=0.5\textwidth]{Figures/lec26-1.png}\]
+For the Fast Wavelet Transform, we essentially wrote the new coefficients $c_k^{(n)}$ and $d_k^{(n)}$ as an average and a difference.\\
+
+To generalize this to $2D$, we now have a grid/matrix of coefficients:
+\[\includegraphics[width=0.5\textwidth]{Figures/lec26-2.png}\]
+One possible option is that - we can perform the 1D discrete wavelet transform on each row of the matrix to completion and apply the same 1D-DWT to each resulting column that's not changed. This is possibly the easiest way to code it recursively.\\
+
+However, we end up with the coefficients $\{d_{k,\ell}^{(m, n)} \}$, but it may not always be the best way to understand or interpret the 2D decomposition.\\
+
+In the 1D case of Haar Wavelets, we relied on these recursive averaging and differencing locally around the coefficients. Here's an \ul{alternative option} - motivated by the geometric interpretation of the 1D DWT, we want to try to work with small ``cells" of coefficients instead.\\
+
+ Let's consider the cells composing of $2 \times 2$ coefficients (the dimension depends on what wavelet you are using, but for Haar it is this) - 
+ \[\begin{bmatrix} c_{00} & c_{01}\\ c_{10} & c_{11} \end{bmatrix}\]
+ Note that the top coefficients are fixed to be $1$ for simplicity.
+
+\begin{question}
+    How to interpret this cell above? What do we mean by the $2 \times 2$ array?
+\end{question}
+
+We observe that
+\begin{itemize}
+    \item We can write
+    \[f^{(1)}(x, y) = \sum_{m , n} c_{m, n}^(\ell) \varphi(2x - m) \varphi(2y - n)\]
+    \item $c_{00}$ is the coefficient of $\varphi(2x) \varphi(2y)$
+    \item $c_{01}$ is the coeffieint of $\varphi(2x) \varphi(2y - 1)$
+\end{itemize}
+
+\mattie{$\varphi$ is the step function, $\psi$ is the Haar Wavelet} Geometrically, what does $\varphi(2x) \varphi(2y)$ look like?
+\[\includegraphics[width=0.5\textwidth]{Figures/lec26-3.png}\]
+Note that the $x$ and $y$ axis are flipped here (look at the matrix above). We want to decompose this into a Wavelet basis. Now in $1D$ we had,
+\[V_1 = V_0 \oplus W_0\]
+Hence, 
+\[V_1 \otimes V_1 = (V_0 \oplus W_0) \otimes (V_0 \oplus W_0) = V_0 \otimes V_0 \oplus V_0 \otimes W_0 \oplus W_0 \otimes V_0 \oplus W_0 \otimes W_0\]
+
+What does each $(V, W)_0 \otimes (V, W)_0$ look like? Well, we know $V_0$ is given by $\varphi$ and $W_0$ is given by $\psi$, so we see they are:
+\[\includegraphics[width=0.5\textwidth]{Figures/lec26-4.png}\]
+
+\begin{question}
+    Is it obvious that $\varphi(x) \otimes \varphi(y)$, $\varphi(x) \otimes \psi(y)$, $\psi(x) \otimes \varphi(y)$, and $\psi(x) \otimes \psi(y)$ form an orthogonal basis for $V_1 \otimes V_1$?\\
+
+    Yes, this is a tensor product of vector spaces, and hence we have an alternative orthogonal basis for $V_1 \otimes V_1$.
+\end{question}
+
+Why don't we write the coefficients $\begin{bmatrix} c_{00} & c_{01}\\ c_{10} & c_{11} \end{bmatrix}$ in this basis? The resulting matrix is still $2 \times 2$ matrix and given by
+\[\begin{bmatrix} c_{00}^{new} & d_{01}^{new}\\ d_{10}^{new} & d_{11}^{new} \end{bmatrix}\]
+
+Well we have the equation
+\[\begin{bmatrix} c_{00} & c_{01}\\ c_{10} & c_{11} \end{bmatrix} = c_{00}^{new} \begin{bmatrix} 1 & 1\\ 1 & 1\end{bmatrix} + d_{01}^{new} \begin{bmatrix} 1 & -1\\ 1 & -1\end{bmatrix} + d_{10}^{new} \begin{bmatrix} 1 & 1\\ -1 & - 1\end{bmatrix} + d_{11}^{new} \begin{bmatrix}
+    1 & -1\\ -1 & 1
+\end{bmatrix}  \]
+We can extract the coefficients by taking the \textbf{kronecker product} on both sides and hence
+\begin{itemize}
+    \item $c_{00}^{new} = \frac{1}{4} \left( c_{00} + c_{01} + c_{10} + c_{11} \right)$
+    \item $d_{01}^{new} = \frac{1}{4} \left( c_{00} - c_{01} + c_{10} - c_{11} \right)$
+    \item $d_{10}^{new} = \frac{1}{4} \left( c_{00} + c_{01} - c_{10} - c_{11} \right)$
+    \item $d_{11}^{new} = \frac{1}{4} \left( c_{00} - c_{01} - c_{10} + c_{11}\right)$
+\end{itemize}
+
+Summarizing, the cell operation gives us
+\[\includegraphics[width=0.5\textwidth]{Figures/lec26-5.png}\]
+
+This whole decomposition also applies this ``atomic" operation to $2 \times 2$ sub-blocks recursively.\\
+
+Thinking about this in terms of frequencies (low frequency is averaging, high freqeuncy is differencing):
+\[\includegraphics[width=0.5\textwidth]{Figures/lec26-6.png}\]
+
+
+\newpage
+\section{Lecture 27 - 4/5/2023}
+
+\subsection{Multi-dimensional Wavelets (continued)}
+
+Last lecture, we considered $2 \times 2$ cells (in the case of Haar), the Discrete Wavelet Transform of that allowed us to consider:
+\[\begin{bmatrix}
+    c_{00} & c_{01}\\ c_{10} & c_{11}
+\end{bmatrix} \to \begin{bmatrix}
+    1 & 1\\ 1 & 1
+\end{bmatrix} + \begin{bmatrix}
+    1 & -1\\ 1 & -1
+\end{bmatrix} + \begin{bmatrix}
+    1 & 1\\ -1 & -1
+\end{bmatrix} + \begin{bmatrix}
+    1 & -1\\ -1 & 1
+\end{bmatrix}\]
+\begin{enumerate}
+    \item The first matrix is thought of having low frequency in both $x$ and $y$ component (LL)
+    \item The second matrix is thought of having low frequency in $x$ and high frequency in $y$ (LH)
+    \item The third matrix is thought of having high frequency in $x$ and low frequency in $y$ (HL)
+    \item The fouth matrix is thought of having high frequency in both $x$ and $y$ component (HH)
+\end{enumerate}
+In principle, we can do the DWT recursively as follows:
+\[\includegraphics[width=0.7\textwidth]{Figures/lec27-1.png}\]
+
+The runtime of this algorithm for a given $N$ pieces is
+\[16N + 16(\frac{N}{4}) + 16(\frac{N}{4^2}) + ... \to CN\]
+where $C$ is some constant. So the run time is again linear with respective to the input.\\
+
+For the Inverse Wavelet Transform - after decomposition, we also have that
+\[f(x, y) = \sum_{m, n, j, k} d_{j,k}^{(m, n)} \psi(2^m x - j) \psi(2^n y - k)\]
+
+Orthogonality tells us that
+\[||f||^2 = \sum_{m, n, j, k} |d_{j,k}^{(m, n)}|^2 2^{m+n}\]
+
+If a given coefficient $d_{j,k}^{(m, n)}$ is small, then discarding it changes the norm of $f$ by amount $2^{m+n} |d_{j,k}^{(m, n)}|^2$ that's also small.\\
+
+We propose a method called \textbf{Thresholding} - we order all of the coefficients, then we discard the smallest $50\%$, $80\%$, $90\%$, or even $99\%$ of them, etc (ie. we replace them with $0$).\\
+
+An alternative strategy would be to discard any coefficients that are less than $10\%$ of the value of the largest.\\
+
+For each cell, we can recover the coefficients back by solving the system of linear equations formed in the $2 \times 2$ cell back in DWT. Depending on how much we discard, what we recover using IWT may not be similar to the original input.
+
+\begin{example}[Image Compression]
+One of the earliest applications of wavelets was to help the FBI store fingerprints efficiently. This was originally attempted with the fast Fourier Transform. The problem with the Fast Fourier Transform is that it blurs the edges of the finger prints.\\
+
+The following is an example of using DWT on the finger print:
+\[\includegraphics[width=0.4\textwidth]{Figures/lec27-2.png}\]
+We observe that the top right picture contains the horizontal frequency parts and the bottom left picture contains the vertical frequency parts.\\
+
+What we can do is store the result of the DWT after applying the threshold method or the alternative method. This means we have less data to store, but we can recover the original image fairly well by applying the Inverse Wavelet Transform.\\
+
+Raising the percentage of what to remove may decrease the accuracy of the recovered image, but this can be remedied by doing more steps in the DWT (the figure before only did DWT once) -
+\[\includegraphics[width=0.4\textwidth]{Figures/lec27-3.png}\]
+Zeroing out the $90\%$ and applying IWT gives us
+\[\includegraphics[width=0.4\textwidth]{Figures/lec27-4.png}\]
+\end{example}
+
+\begin{question}
+    We do obtain a sparse image at the end, but how can we efficiently store this image efficiently?
+\end{question}
+
+There's a general procedure called the Huffman Encoding to do this. It turns out is a standard application of \textbf{coding theory}, which is also founded by Shannon.
+
+
+
 \end{document}
