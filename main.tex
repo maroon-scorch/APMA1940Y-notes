@@ -2532,6 +2532,130 @@ Zeroing out the $90\%$ and applying IWT gives us
 
 There's a general procedure called the Huffman Encoding to do this. It turns out is a standard application of \textbf{coding theory}, which is also founded by Shannon.
 
+\newpage
+\section{Lecture 28 - 4/7/2023}
+
+\subsection{Solution to Final Part of Hmework 6}
+
+We want to show that
+\[f(t) \approx f_n(t) = \sum_{k \in \Zbb} c_k \varphi(2^n t - k)\]
+where we choose $c_k$ to be the average value of $f$ over the support $\varphi(2^n t - k)$.\\
+
+We also have the property that
+\[1 = \sum_{k \in \Zbb} \varphi(2^n t - k),\ \forall t \in \Rbb\]
+
+Now, we have that
+\begin{align*}
+    f(t) - f_n(t) &= 1\cdot f(t) - f_n(t)\\
+    &= \sum_{k \in \Zbb} (f(t) - c_k) \varphi(2^n t - k)
+\end{align*}
+We can split this sum into even and odd parts, this won't overlap, hence
+\begin{align*}
+    f(t) - f_n(t) &= \sum_{k \text{ odd}} (f(t) - c_k) \varphi(2^n t - k) + \sum_{k \text{ even}} (f(t) - c_k) \varphi(2^n t - k)
+\end{align*}
+In $L^2$ norm, we have that
+\begin{align*}
+    ||f - f_n||_2 &\leq ||\sum_{k \text{ odd}} (f(t) - c_k) \varphi(2^n t - k)||_2 + ||\sum_{k \text{ even}} (f(t) - c_k) \varphi(2^n t - k)||_2\\
+    &\leq \sum_{k \text{ odd}} ||(f(t) - c_k) \varphi(2^n t - k)||_2 + \sum_{k \text{ even}} ||(f(t) - c_k) \varphi(2^n t - k)||_2
+\end{align*}
+For odd, we have that
+\begin{align*}
+    \sum_{k \text{ odd}} ||(f(t) - c_k) \varphi(2^n t - k)||_2  &\leq \sum_{k \text{ odd}}  [(f(t) - c_k) \varphi(2^n t - k)^{0.5}] \cdot [\varphi(2^n t - k)^{0.5}]\\
+    &\leq [\sum_{k \text{ odd}} (f(t) - c_k)^2 \varphi(2^n t - k)] \cdot [\sum_{k \text{ odd}} \varphi(2^n t - k)] \tag*{Cauchy Schwartz}\\
+    &\leq \sum_{k \text{ odd}} (f(t) - c_k)^2 \varphi(2^n t - k) \tag*{Latter sum is non-negative and $\leq 1$}\\
+    &\leq \sum_{k \text{ odd} (f(t) - c_k)^2 \tag*{Since $0 \leq \varphi \leq 1$}
+\end{align*}
+The error term $\sum_{k \text{ odd} (f(t) - c_k)^2$ is just the usual MRA given by the step function and hence goes to $0$ as $n \to \infty$. The same estimate holds similarly for even term. Hence, we conclude that
+\[\lim_{n \to \infty} ||f - f_n||_2 = 0\]
+
+\subsection{Orthonormal Wavelets}
+So far, we have only constructed one example of wavelet that gives us an MRA - the Haar Wavelet, but we would like some other examples too.\\
+
+Suppose we have a scaling function $\varphi$ such that
+\begin{itemize}
+    \item $\{\varphi(t - k): k \in \Zbb\}$ is orthonormal
+    \item $\varphi$ satisfies the $2$-scale relation:
+    \[\varphi(t) = \sum_{k \in \Zbb} p_k \varphi(2t - k)\]
+    \item In particular, this implies the existence of a nested sequence of spaces
+    \[\{0\} \subset ... \subset V_0 \subset V_1 \subset ... \subset... L^2(\Rbb)\]
+\end{itemize}
+
+\begin{question}
+We have some questions:
+\begin{itemize}
+    \item Under what condition on $\varphi$ does it generate a multiresolution analysis?
+    \item What is the associated wavelet $\psi$? $\psi$ is sometimes called the \textbf{mother wavelet}.
+    \item What is $\psi$'s Two-Scale Relation?
+    \item How to check if $\varphi$ is orthonormal?
+\end{itemize}
+We will see that many of these questions are dependent only on the choice of coefficients $p_k$.
+\end{question}
+
+We start with a simple condition for orthonormality.
+\begin{theorem}
+$\{\varphi(t - k): k \in \Zbb\}$ is orthonormal if and only if $\sum_{m \in \Zbb} |\widehat{\varphi}(w + 2m \pi)|^2 = 1$.
+\end{theorem}
+
+\begin{proof}
+    By Parserval's Identity,
+    \begin{align*}
+    \int_{-\infty}^{\infty} \varphi(t - k) \overline{\varphi(t - \ell)} dt &= \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{-ikw} \widehat{\varphi}(w) \overline{e^{-i\ell w} \widehat{\varphi}(w)} dw\\
+    &= \frac{1}{2\pi} \int_{-\infty}^{\infty} e^{i(\ell -k)w} |\widehat{\varphi}(w)|^2 dw\\
+    &= \frac{1}{2\pi} \sum_{m \in \Zbb} \int_{2m \pi}^{2(m+1)\pi} dw e^{i(\ell -k)w} |\widehat{\varphi}(w)|^2\\
+    &= \frac{1}{2\pi} \sum_{m \in \Zbb} \int_{2m \pi}^{2(m+1)\pi} dw e^{i(\ell -k)w} |\widehat{\varphi}(w + 2m\pi)|^2 \tag*{U-substitute $w - 2m\pi \to w$}
+    \end{align*}
+Let $\Phi(w) = |\widehat{\varphi}(w + 2m\pi)|^2$, this is a $2\pi$-peridioc function, hence the integral here is really the Fourier Coefficient and
+\begin{align*}
+        \int_{-\infty}^{\infty} \varphi(t - k) \overline{\varphi(t - \ell)} dt = (\ell - k)-\text{th Fourier coefficient of }\Phi(w)
+\end{align*}
+We see that
+\begin{align*}
+    \Phi(w) = \sum_{n \in \Zbb} c_n e^{i n \omega}
+\end{align*}
+where $c_n = \frac{1}{2\pi} \int_{0}^{2\pi} dw e^{-inw} \Phi(w)$.\\
+
+If we have orthonormality, then $c_0 = 1$. For $n \neq 0$, $c_n = 0$. Hence, $\Phi(\omega) = 1$ for all $\omega \in \Rbb$.\\
+
+The converse also follows by tracting the steps backwards.
+\end{proof}
+
+\begin{example}
+    For the Shannon Wavelet, $\varphi(t) = \frac{\sin \pi t}{\pi t}$ and $\widehat{\varphi}(w) = \begin{cases}
+        1,\ |w| < \pi\\
+        0, \text{ otherwise}
+    \end{cases}$. We observe that the graphs of $\widehat{\varphi}(w + 2m\pi)$ are
+    \[\includegraphics[width=0.6\textwidth]{Figures/lec28-1.png}\]
+    Hence the sums add up to the constant $1$ function. Hence, the Shannon Wavelets are orthonormal.
+\end{example}
+
+\begin{corollary}
+    If $\varphi$ is orthornomal, then $|\widehat{\varphi}(w)| \leq 1$ for all $w \in \Rbb$.
+\end{corollary}
+
+\subsection{Projections (Reminder)}
+
+We had that the projection $L_n f(t)$ is the best approximation:
+
+In we have orthonormality, we have that - $L_n f(t) \coloneqq \sum_{k \in \Zbb} c_k^{(n)} \varphi(2^n t - k)$, where
+\[c_k^{(n)} = 2^n \int_{-\infty}^{\infty} f(t) \overline{\varphi(2^n t - k)} dt\]
+This is because
+\[||\varphi(2^n t - k)||^2 = 2^{-n} \int_{-\infty}^{\infty} |\varphi(s)|^2 ds = 2^{-n}\]
+
+In the case of non-orthonormal, the function $L_n f$ satsfies the following properties we will refer back to later:
+\begin{itemize}
+    \item $\langle L_n f, v \rangle = \langle f, v \rangle$ for all $v \in V_n$. This is the same as saying $f - L_n f$ is perpendicular to $V_n$.
+    \item Linearity: $L_n (\alpha f + g) = \alpha L_n f + L_n g$
+    \item Bounded: $||L_n f|| \leq ||f||$
+    \item If $f \in V_n$, then $L_n f = f$
+    \item $||f - L_n f||^2 = ||f||^2 - ||L_n f||^2$ (Pythagorean)
+    \item $||L_n f||^2 = \sum_{k \in \Zbb} 2^{-n} |c_k^{(n)}|^2$ (if we require orthonormality)
+\end{itemize}
+
+\begin{question}
+   When does $V_n \to \{0\}$ as $n \to -\infty$? ie. We are requiring
+   \[\bigcap_{n \in \Zbb} V_n = \{0\}\]
+\end{question}
+
 
 
 \end{document}
