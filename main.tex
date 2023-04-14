@@ -2656,6 +2656,249 @@ In the case of non-orthonormal, the function $L_n f$ satsfies the following prop
    \[\bigcap_{n \in \Zbb} V_n = \{0\}\]
 \end{question}
 
+\newpage
+\section{Lecture 29 - 4/10/2023}
 
+We raise two basic questions on Multi-Resolution Analysis - recall, we are given that
+\begin{itemize}
+    \item $\{\varphi(t - k)\}_{k \in \Zbb}$ are orthonormal
+    \item We have a two scale relation $\varphi(t) = \sum_j p_j \varphi(2t - j)$
+    \item We showed before that this implies we have a nested sequence
+    \[\{0\} ... \subset V_0 \subset V_1 \subset ... \subset L^2(\Rbb)\]
+\end{itemize}
+Our questions are, under what extra conditions on $\varphi$ would we need for the following to hold:
+\begin{enumerate}
+    \item Is $\bigcap_{n \in \Zbb} V_n = \{0\}$?
+    \item Is $\overline{\bigcup_{n \in \Zbb} V_n} = L^2(\Rbb)$?
+\end{enumerate}
+
+It actually turns out the first question does not need any more constraints.
+
+\begin{proposition}
+    For the orthonormal set $\{\varphi(t - k)\}_{k \in \Zbb}$ satisfying the Two-Scale Relation, we always have that $\bigcap_{n \in \Zbb} V_n = \{0\}$.
+\end{proposition}
+
+\begin{proof}
+    Let $f \in L^2(\Rbb)$ and $M \in \Rbb$ (to be determined) such that $M \to \infty$. We define the function
+    \[f_M(t) = \begin{cases}
+        f(t),\ |t| < M\\
+        0, \text{ otherwise}
+    \end{cases}\]
+    So in particular $f_M \to f$ on $L^2(\Rbb)$ as $M \to \infty$. For $n \in \Zbb$, let's consider again the $L^2$ projection:
+    \[L_n f_n = \sum_{k \in \Zbb} c_k^{(n)} \varphi(2^n t - k)\]
+    In the case where that $\varphi$'s are orthonormal, we have that the coefficients are
+    \[c_k^{(n)} = 2^n \int_\Rbb f_M(t) \overline{\varphi(2^n t - k)} dt = 2^n \int_{-M}^M f_M(t) \overline{\varphi(2^n t - k)} dt \quad (\dagger)\]
+    What is the $L^2$ norm of $L_n f_M$? Well,
+    \begin{align*}
+        ||L_n f_M||^2 &= 2^{-n} \sum_{k \in \Zbb} ||c_k^{(n)}||^2
+    \end{align*}
+    To find the value of $ ||c_k^{(n)}||^2$, applying the Cauchy Schwartz Inequality to both sides of $(\dagger)$, we have that
+    \begin{align*}
+       2^{-n} ||c_k^{(n)}||^2 &\leq ||f_M||^2  2^{n} \int_{-M}^M dt |\varphi(2^n t - k)|^2\\
+       &= ||f_M||^2  2^{n} \int_{-2^n M - k}^{2^n M-k} ds |\varphi(s)|^2 \tag*{Let $s = 2^n t - k$}
+    \end{align*}
+    Hence, we have that
+    \begin{align*}
+        ||L_n f_M||^2 &= 2^{-n} \sum_{k \in \Zbb} ||c_k^{(n)}||^2\\
+        &\leq ||f_M||^2 \sum_{k \in \Zbb} \int_{-2^n M - k}^{2^n M-k} ds |\varphi(s)|^2
+    \end{align*}
+    What is the integral $\int_{-2^n M - k}^{2^n M-k} ds |\varphi(s)|^2$ we are integrating over here? Well, as $n \to -\infty$, the region we are integrating over would shrink to $0$ if $M$ is not growing fast enough:
+    \[\includegraphics[width=0.5\textwidth]{Figures/lec29-1.png}\]
+    Hence, as $n \to -\infty$, $||L_n f_M|| \to 0$. Now, we would also like $||L_n f||$ to go to $0$. Indeed, since $L_n$ is linear, by Triangle's Inequality, we have
+    \[||L_n f|| \leq ||Ln f_M|| + ||L_n (f - f_M)|| \leq ||L_n f_M|| + ||f - f_M||\]
+    where the second inequality comes from Pythagorean Theorem (projection reduces norm).\\
+
+    We note that
+    \begin{itemize}
+        \item $ ||L_n f_M|| $ tend to $0$ as $2^n M \to 0$.
+        \item $|| f - f_M||$ tend to $0$ as $M \to \infty$.
+    \end{itemize}
+    We want to choose $M$ to be tending to infinity but growing slow enough, let's choose
+    \[M = 2^{-n/2}\]
+    Then $m \to \infty$ as $n \to -\infty$, and $2^n M = 2^{n/2} \to 0$ as $n \to -\infty$. Hence, as $n \to -\infty$, $||L_n f|| \to 0$ for all $f \in L^2(\Rbb)$.\\
+
+    Now let $f \in \bigcap_{n \in \Zbb} V_n$, so $f \in V_n$ for all $n$, so its projection is just itself, hence $L_n f = f$ for all $n$. Hence
+    \[||f|| = ||L_n f|| \to 0 \text{ as } n \to -\infty\]
+    But we have that $||f|| = 0$ if and only if $f = 0$. \mattie{almost everywhere $0$?}
+\end{proof}
+
+Now we move on to the second question. The 2 assumptions we have are not enough! For example, if we take $\varphi$ as the Haar Wavelet (not $\psi$), then it cannot be dense in $L^2(\Rbb)$ since it doesn't see DC components.\\
+
+But we note that the problem with the Haar Wavelet is that its zeroth moment is $0$.
+
+\begin{theorem}
+    Suppose $\{\varphi(t - k)\}$ are given as before, suppose $\widehat{\varphi}$ is continuous at $0$ and $|\widehat{\varphi}(0)| = 1$ if and only if $V_n$ are dense in $L^2(\Rbb)$.
+\end{theorem}
+
+\begin{proof}
+    We'll use two forms of Parserval's equality:
+    \begin{enumerate}
+        \item $||f||^2 = \frac{1}{2\pi} ||\widehat{f}||^2$
+        \item If $f(t) = \sum_{k \in \Zbb} c_k e^{ikt}$ for $t \in [0, 2\pi]$, then
+        \[\int_{-\pi}^{pi} |f(t)|^2 dt = 2\pi \sum_{k \in \Zbb} |c_k^{(n)}|^2 \]
+    \end{enumerate}
+    Let $f \in L^2(\Rbb)$ be given, and for $n \in \Zbb$, we define $\Omega = 2^n \pi$. Let's set $\widehat{f}_\Omega(w) = \begin{cases}
+        \widehat{f}(\omega),\ |\omega| < \Omega\\
+        0,\ \text{else}
+    \end{cases}$, then we again have that $\widehat{f}_\Omega(w) \to \widehat{f}$ as $n \to \infty$.\\
+
+    We again consider the projections $L_n f_\Omega$, with coefficients given by
+    \begin{align*}
+        c_{k}^{(n)} &= 2^n \int_{-\infty}^{\infty} f_\Omega(t) \overline{\varphi(2^n t - k)} dt\\
+        &= \frac{1}{2\pi} \int_{-\infty}^{\infty} \widehat{f}_\Omega(w)  e^{-i2^{-n} w k} \overline{\widehat{\varphi}(2^{-n} w)}  d\omega \tag*{Parsevral}
+    \end{align*}
+    since the Furier Transform of $t \mapsto \varphi(2^n t - k)$ is $w \mapsto 2^{-n} e^{-i2^{-n} w k} \overline{\widehat{\varphi}(2^{-n} w)} $
+    \begin{align*}
+        &= \frac{1}{2\pi} \int_{-\Omega}^{\Omega} \widehat{f}_\Omega(w)  e^{-i2^{-n} w k} \overline{\widehat{\varphi}(2^{-n} w)} d\omega \tag*{Support}\\
+        &= \frac{2^n}{2\pi} \int_{-\pi}^{\pi} e^{ik\xi} \widehat{f}_n(2^n \xi) \overline{\widehat{\varphi}(\xi)} d\xi\tag*{Let $\xi = 2^{-n} w$}
+    \end{align*}
+    Observe that $\xi \to \widehat{f}_n(2^n \xi) \overline{\widehat{\varphi}(\xi)}$ is supported on $(-\pi, \pi)$ and has discrete Fourier coefficients
+    \[\frac{1}{2\pi} \int_{-\pi}^{\pi} e^{ik\xi} \widehat{f}_n(2^n \xi) \overline{\widehat{\varphi}(\xi)} d\xi = 2^{-n} c_{-k}^{(n)}\]
+    By the second Parserval Indentity, we have that
+    \begin{align*}
+        2\pi \sum_{k \in \Zbb} 2^{-2n} |c_k^{(n)}|^2 &= \int_{-\pi}^{\pi} d\xi |\widehat{f}_\Omega(2^n \xi)|^2 |\widehat{\varphi}(\xi)|^2\\
+        &= 2^{-n} \int_{-\Omega}^{\Omega} d\omega |\widehat{f}_\Omega(\omega)|^2 |\widehat{\varphi}(2^{-n} \omega)|^2
+    \end{align*}
+    Hence we have that
+    \[||L_n f_\Omega||^2 = 2^{-n} \sum_{k} |c_k^{(n)}|^2 = \frac{1}{2\pi} \int_{-\Omega}^{\Omega} |\widehat{f}_\Omega|^2 |\widehat{\varphi}(2^{-n} \omega)|^2 d\omega\]
+    Hence we have that
+    \begin{align*}
+        ||f_\Omega - L_n f_\Omega||^2 &= ||f_\Omega||^2 - ||L_n f_\Omega||^2\\
+        &= \frac{1}{2\pi} ||\widehat{f}_\Omega||^2 - \frac{1}{2\pi} \int_{-\Omega}^{\Omega} |\widehat{f}_\Omega|^2 |\widehat{\varphi}(2^{-n} \omega)|^2 d\omega\\
+        &= \frac{1}{2\pi} \int_{-\Omega}^{\Omega} |\widehat{f}_\Omega|^2 (1 - |\widehat{\varphi}(2^{-n} \omega)|^2) d\omega\\
+        &\leq \frac{1}{2\pi} \int_{-\infty}^{\infty} |\widehat{f}_\Omega|^2 (1 - |\widehat{\varphi}(2^{-n} \omega)|^2) d\omega\\
+    \end{align*}
+    This expression goes to $0$ as $n \to \infty$ provided that $|\widehat{\varphi}(2^{-n} \omega)| \to |\widehat{\varphi}(0)| = 1$
+\end{proof}
+
+\newpage
+\section{Lecture 30- 4/14/2023}
+
+Given $\varphi$ orthonormal satisfying a two-scale relation, we want to prove that
+\begin{theorem}
+\[ \overline{\bigcup_{n \in \Zbb} V_n} = L_2(\Rbb) \iff \widehat{\varphi} \text{ continuous at $0$ and } |\widehat{\varphi}(0)| = 1 \]  
+\end{theorem}
+
+\begin{proof}[Sketch so far]
+    We defined $\Omega = 2^n \pi$, we have that
+    \[\widehat{f}_\Omega(w) = \begin{cases}
+        \wdiehat{f}(\omega), |\omega| < \Omega\\
+        0, \text{ otherwise}
+    \end{cases}\]
+    Then $f_\Omega \to f$ as $n \to \infty$. We then consider the projection $L_n f_\Omega$. We concluded from last lecture that
+    \[||f_\Omega||^2 - ||L_n f_\Omega||^2 = \frac{1}{2\pi} \int_{-\Omega}^{+\Omega} |\widehat{f}_\Omega(\omega)|^2(1 - |\widehat{\varphi}(2^{-n} w)|^2) d\omega\]
+Hence, we have that
+\begin{align*}
+    ||f_\Omega - L_n f_\Omega||^2 &= \frac{1}{2\pi} \int_{-\Omega}^{\Omega} |\widehat{f}_\Omega|^2 (1 - |\widehat{\varphi}(2^{-n} \omega)|^2) d\omega
+\end{align*}
+In particular, $f_\Omega - L_n f_n$ tend to $0$ as $n \to \infty$ only if $1 - |\widehat{\varphi}(2^{-n} w)|^2$ tend to $0$ as $n \to \infty$, which implies that
+\[|\wdiehat{\varphi}(0)| = \lim_{n \to infty} |\widehat{\varphi}(2^{-n} w)| = 1\]
+and that $\widehat{\varphi}$ is continuous at $0$.\\
+
+Conversely, let $f \in L^2(\Rbb)$ be arbitrary, then
+\begin{align*}
+    ||f - L_n f_\Omega|| \leq ||f - f_n|| + ||f_\Omega - L_n f_\Omega||
+\end{align*}
+We note that
+\[||f_\Omega - L_n f_\Omega||^2 = \frac{1}{2\pi} \int_{-\Omega}^{\Omega} |\widehat{f}_\Omega|^2 (1 - |\widehat{\varphi}(2^{-n} \omega)|^2) d\omega \leq \frac{1}{2\pi} \int_{-\infty}^{\infty} |\widehat{f}(\omega)|^2 (1 - |\widehat{\varphi}(2^{-n} \omega)|^2) dw\]
+We also note that $(1 - |\widehat{\varphi}(2^{-n} \omega)|^2) \geq 0$ by a previous lemma last lecture. Hence both $||f - f_n||$ and $||f_\Omega - L_n f_\Omega||$ goes to $0$ as $n \to \infty$. 
+\end{proof}
+
+\begin{example}
+    Here are some applications:
+    \begin{enumerate}
+        \item For the Shannon Wavelet $\phi_s(t) = \frac{\sin \pi t}{\pi t}$, then $\widehat{\phi_s}(\omega) = \begin{cases}
+            1,\ |\omega| < \pi\\
+            0, \text{ otherwise}
+        \end{cases}$
+        Clearly it's continuous at $0$ and evaluate to $1$, so the Shannon Wavelet form an MRA of $L^2(\Rbb)$.
+        \item For the Haar Wavelet, $\varphi_{H}(t) = \begin{cases}
+            1, t \in [0, 1]\\
+            0, \text{ otherwise}
+        \end{cases}$ and we compute that $\widehat{\varphi}_H(0) = \int_{\Rbb} \varphi_H(t) dt = 1$ and is contnuous at $0$. Hence the Haar Wavelet form a MRA of $L^2(\Rbb)$.
+    \end{enumerate}
+\end{example}
+
+\begin{question}
+    Can we just take any $\varphi$ such that its integral is non-zero, and then scale so that $|\widehat{\varphi}(0)| = 1$ to give an MRA? The answer is no, because we assume our scaling function is already orthonormal, so if we scale our function again, it would no longer be orthonormal. 
+\end{question}
+
+We conclude that for $\varphi$ orthornormal with a $2$-scale relation:
+\begin{itemize}
+    \item $\bigcap_{n \in \Zbb} V_n = \{0\}$
+    \item $\overline{\bigcup_{n \in \Zbb} V_n } = L_2(\Rbb)$ if and only if $\widehat{\varphi}$ is continuous at $0$ and $|\widehat{\varphi}(0)| = 1$
+    \item This gives us a multi-resolution analysis of $L^2(\Rbb)$.
+\end{itemize}
+
+\begin{question}
+    How do we find the increment/detail space $W_n$? In other words, we seek the function $\psi$ such that
+    \[W_n = \spn \{\psi(2^n t - k): k \in \Zbb\}\]
+    such that $\psi$ satisfy a $2$-scale relation and are orthonormal.
+\end{question}
+
+Before we do this, we need a few useful results and definitions:
+
+\begin{itemize}
+    \item Recall that if $\varphi$ is ortonormal, then we proved this is true if and only if
+\[1 = \sum_{m \in \Zbb} |\widehat{\varphi}(w 2 m \pi)|^2 \quad \forall w \in \Rbb\]
+    \item We also have the Two-Scale Relation:
+    \[\varphi(\frac{t}{2}) = \sum_{j \in \Zbb} p_j \varphi(t - j)\]
+    Taking the Fourier Transfor on both sides gives
+    \[2 \widehat{\varphi}(2w) = [\sum_{j \in \Zbb} p_j e^{-ijw}] \widehat{\phi}(\omega)\]
+    Recall $P(w) = \frac{1}{2}\sum_{j \in \Zbb} p_j e^{-ijw}$, hence we have that
+    \[\widehat{\varphi}(2w) = P(w) \widehat{\varphi}(w)\]
+    $P(w)$ is called the \textbf{two-scale symbol of $P$}.
+\end{itemize}
+
+Observe that any functions of the form
+\[w \mapsto \sum_j c_j e^{-ijw}\]
+is $2\pi$-periodic. Moreover, we calculate
+\[\sum_0^{2\pi} |g(w)|^2 dw = 2\pi \sum_j |c_j|^2\]
+So $g$ is square-integrable on $(0, 2\pi)$ if and only if $\{c_j\} \in \ell^2$. We define
+
+\begin{definition}
+    \[L^2_{per}(0, 2\pi) = \{g: \Rbb \to \Cbb\ |\ g(w) = \sum_j c_j e^{-ijw}, \{c_j\} \in \ell^2\}\]
+    These are the class of functions that are square integrable on $(0 2\pi)$.
+\end{definition}
+
+One final useful identity
+\begin{proposition}
+$1 = |P(w)|^2 + |P(w + \pi)|^2$ for all $w \in \Rbb$.
+\end{proposition}
+
+\begin{proof}
+    If $\varphi$ is orthormal, then $1 = \sum_{k \in \Zbb} |\widehat{\varphi}(2\omega + 2\pi k)|^2$ (just eplace $w$ with $2w$). Hence we have
+    \begin{align*}
+        1 &= \sum_{k \in \Zbb} |\widehat{\varphi}(2\omega + 2\pi k)|^2\\
+        &= \sum_{m \in \Zbb} |\widehat{\varphi}(2(\omega + 2\pi m))|^2 + |\widehat{\varphi}(2(\omega + \pi m + \pi))|^2 \tag*{Even and Odd parts}
+    \end{align*}
+    We can write the first term of the sum as
+    \begin{align*}
+        \sum_{m \in \Zbb} |\widehat{\varphi}(2(\omega + 2\pi m))|^2 &= \sum_{m \in \Zbb} |P(w + 2\pi m)|^2 |\widehat{\varphi}(w + 2\pi m)|^2\\
+        &= |P(w)|^2 \sum_{m \in \Zbb} |\widehat{\varphi}(w + 2\pi m)|^2 \tag*{$P(w + 2\pi m)$ is $2\pi$-periodic}\\
+        &= |P(w)|^2 \tag*{The latter sum is just $1$}
+    \end{align*}
+    Similarly, we also have that
+    \[\sum_{m \in \Zbb} |\widehat{\varphi}(2(\omega + \pi m + \pi))|^2  = |P(w+\pi)|^2\]
+    Thus, we conclude that$$1 = |P(w)|^2 + |P(w + \pi)|^2$$.
+\end{proof}
+
+Now we are ready to come back - 
+\begin{itemize}
+    \item \textbf{Given: }$\varphi$ orthonormal and satisfies a Two0Scale Relation.
+    \item \textbf{Want: }$\psi$ orthonormal and satisfies a Two-Scale Relation, and such that $V_0 = V_{-1} \oplus W_{-1}$ where $W_n = \spn \{\psi(2^n t - k): k \in \Zbb\}$.
+\end{itemize}
+
+The Key Idea here is that - \ul{This question is really difficult to solve in the time domain, but we will instead do this in the frequency domain and find $\widehat{\psi}$}.
+
+\begin{itemize}
+    \item Can we characterize the space $V_n$ in terms of the frequency domain? In the time domain,
+    \[V_n = \{f \in L^2(\Rbb): f(t) = \sum_k s_k \varphi(2^{n} t - k), \{s_k\} \in \ell^2\}\]
+    Try to write $f(t)$ in terms of $w$. For the case $n = 0$,
+    \[\widehat{f}(\omega) = (\sum_{k} s_k e^{-ikw}) \widehat{\varphi}(w),\ \{s_k\} \in \ell^2\]
+    We note that $S(w) \coloneqq (\sum_{k} s_k e^{-ikw}) \in L^2_{per}(0, 2\pi)$. Hence, we could equally well define
+    \[V_0 = \{f(t): \widehat{f}(\omega) = S(w) \widehat{\varphi}(w) \text{, for some } S(w) \in L^2_{per}(0, 2\pi)\} \]
+    Note, there are some more restrictions on what $S(w)$ should be, because if this works for any $S(w)$, this would imply that $V_{-1} = V_0$.
+\end{itemize}
 
 \end{document}
