@@ -2782,7 +2782,7 @@ Given $\varphi$ orthonormal satisfying a two-scale relation, we want to prove th
 \begin{proof}[Sketch so far]
     We defined $\Omega = 2^n \pi$, we have that
     \[\widehat{f}_\Omega(w) = \begin{cases}
-        \wdiehat{f}(\omega), |\omega| < \Omega\\
+        \widehat{f}(\omega), |\omega| < \Omega\\
         0, \text{ otherwise}
     \end{cases}\]
     Then $f_\Omega \to f$ as $n \to \infty$. We then consider the projection $L_n f_\Omega$. We concluded from last lecture that
@@ -2792,7 +2792,7 @@ Hence, we have that
     ||f_\Omega - L_n f_\Omega||^2 &= \frac{1}{2\pi} \int_{-\Omega}^{\Omega} |\widehat{f}_\Omega|^2 (1 - |\widehat{\varphi}(2^{-n} \omega)|^2) d\omega
 \end{align*}
 In particular, $f_\Omega - L_n f_n$ tend to $0$ as $n \to \infty$ only if $1 - |\widehat{\varphi}(2^{-n} w)|^2$ tend to $0$ as $n \to \infty$, which implies that
-\[|\wdiehat{\varphi}(0)| = \lim_{n \to infty} |\widehat{\varphi}(2^{-n} w)| = 1\]
+\[|\widehat{\varphi}(0)| = \lim_{n \to infty} |\widehat{\varphi}(2^{-n} w)| = 1\]
 and that $\widehat{\varphi}$ is continuous at $0$.\\
 
 Conversely, let $f \in L^2(\Rbb)$ be arbitrary, then
@@ -2900,5 +2900,185 @@ The Key Idea here is that - \ul{This question is really difficult to solve in th
     \[V_0 = \{f(t): \widehat{f}(\omega) = S(w) \widehat{\varphi}(w) \text{, for some } S(w) \in L^2_{per}(0, 2\pi)\} \]
     Note, there are some more restrictions on what $S(w)$ should be, because if this works for any $S(w)$, this would imply that $V_{-1} = V_0$.
 \end{itemize}
+
+\newpage
+\section{Lecture 31 - 4/17/2023}
+
+\subsection{Sketching Wavelets Using Two Scale Relation}
+
+Suppose we have a two scale relation (ex. for Daubechies 4 wavelet)
+\[\varphi(t) = p_0 \varphi(2t) + p_1 \varphi(2t - 1) + p_2 \varphi(2t - 2) + p_3 \varphi(2t - 3) \quad (*)\]
+with $p_0, p_1, p_2, p_3$ given.
+
+\begin{question}
+    How to plot $\varphi(t)$? We observe the solution here need not be unique, the zero function is a trivial solution, and furthermore adding two solutions toether makes a solution.
+\end{question}
+
+    We seek a solution of $(*)$ with compact support in $\supp(\varphi) = [A, B]$ for $A$ and $B$ to be determined.
+
+    \begin{itemize}
+        \item What is the support of $\varphi(2t)$? Well, $\varphi(2t) \neq 0$ if and only if $A \leq 2t \leq B$, which is true if and only if $t \in [\frac{A}{2}, \frac{B}{2}]$
+        \item In general, the support of $\varphi(2t - j)$ is in $\frac{A + j}{2} \leq t \leq \frac{B+j}{2}$
+    \end{itemize}
+
+    Hence, using $(*)$, writing out the support on both sides
+    \[[A, B] = \supp(\varphi) = \bigcup_{j=0}^3 [\frac{A+j}{2}, \frac{B+j}{2}] = [\frac{A}{2}, \frac{B+3}{2}]\]
+    Hence we have that
+    \[\frac{A}{2} = A \text{ and } \frac{B+3}{2} = B\]
+    which implies that $A = 0$ and $B = 3$.\\
+
+    Now we have that the graph $\varphi(t)$ should roughly look like (schematically)
+    \[\includegraphics[width=0.6\textwidth]{Figures/lec31-1.png}\]
+    Similarly, $\varphi(2t)$ is the same graph but shifted and scaled to $[0, \frac{3}{2}]$, $\varphi(2t - 1)$ is the same graph but shifted and scaled to $[\frac{1}{2}, 2]$, etc:
+    \[\includegraphics[height=0.4\textheight]{Figures/lec31-2.png}\]
+
+    Now, we want to figure out a procedure to get closer and closer to the solution. Let's suppose we have 
+    $$\Vec{\varphi_n} = \text{values of $\varphi(t)$ at $t = k/2^n$ for $k = 0, 1, ..., 3 \times 2^n$}$$
+    and let
+    $$\Vec{\varphi_{n+1}} = \text{values of $\varphi(t)$ at $t = k/2^{n+1}$ for $k = 0, 1, ..., 3 \times 2^{n+1}$}$$
+    The Two-Scale Relation allows us to compute $\Vec{\varphi_{n+1}}$ from $\Vec{\varphi_{n}}$.\\
+
+    To code this, we can operate on vector directly:
+    \[\includegraphics[width=0.6\textwidth]{Figures/lec31-3.png}\]
+    To view this in a more tabular view:
+    \[\includegraphics[width=0.4\textwidth]{Figures/lec31-4.png}\]
+    Each time we compute $\Vec{\varphi}_{n+1}$ from $\Vec{\varphi}_{n}$, the points we get are twice as densely packed in the interval $[0, 3]$, and hence our solution gets finer and finer.\\
+
+    What is the starting vector? Well, we want to choose the values of $\varphi(0) = 0, \varphi(1), \varphi(2), \varphi(3) = 0$. It turns out as long as we don't pick the zero vector to start with, our result would always converge to some interesting wavelet!
+
+\begin{remark}
+    How about the wavelet? How would be plot $\psi(t)$ Assuming the procedure above works, we just get the wavelet $\Vec{\psi}_{n+1}$ the same way but using the multipliers given by the two scale relation for $\psi(t)$.
+\end{remark}
+
+
+    Implementing the algorithm described above, we see the plots of the Daubechies 4 wavelet:
+\[\includegraphics[height=0.5\textheight]{Figures/lec31-5.png}\]
+
+\begin{question}
+    How smooth is this wavelet? Is it even continuous? It's not so obvious now, but there's a whole branch of wavelets studying these properties. It turns out this example, the Daubechies 4 wavelet is only $C^{0.67}$ smooth (in terms of the Lipschitz Continuity).
+\end{question}
+
+\newpage
+\section{Lecture 32 - 4/19/2023}
+
+Given $\varphi$ satisfying
+\begin{itemize}
+    \item A Two-Scale Relation given by $\varphi(t) = \sum_j p_j \varphi(2t - j)$
+    \item The family $\varphi(t - j)$ are orthornoaml.
+\end{itemize}
+We want to find an accompanying wavelet $\psi(t)$ with
+\begin{itemize}
+    \item $\psi(t) = \sum_j q_j \varphi(2t - j)$
+    \item $\psi$ to also be an orthornoaml family.
+\end{itemize}
+
+Last Friday, we translated the same question into the Fourier domain instead:
+\begin{itemize}
+    \item The Two-Scale Relation on $\varphi$ is the same as
+    \[\widehat{\varphi}(2\omega) = P(\omega) \widehat{\phi}(\omega)\]
+    where $P(\omega) = \frac{1}{2} \sum_j p_j e^{-i\omega j}$ is the Two-Scale Symbol
+    \item The orthnormality of $\varphi$ is the same as
+    \[1 = \sum_k |\widehat{\varphi}(w + 2k\pi)|^2\quad \forall w \in \Rbb\]
+\end{itemize}
+The Two-Scale Relation we want on $\psi(t)$ can be translated to be equivalent to
+\[\widehat{\psi}(2w) = Q(w) \widehat{\varphi}(w)\]
+
+\textbf{Last time}, we recall that we can write
+\begin{align*}
+    V_0 &= \{ f \in L^2(\Rbb): f(t) = \sum_{k} c_k \varphi(t - k), \{c_k\} \in \ell^2\}\\
+    &= \{f: \widehat{f}(w) = s(w) \widehat{\varphi}(w), s \in L^2_{per}(0, 2\pi)\}
+\end{align*}
+
+\begin{question}
+    What is the Strategy we want to figure out what $Q(w)$ should be?
+\end{question}
+
+We want to write $V_0 = V_{-1} \oplus W_{-1}$, and we notice that
+\[\begin{tikzcd}
+	{V_{-1}} && {V_0} \\
+	{r(w) \in L^2_{per}(0, 2\pi)} && {s(w) \in L^2_{per}(0, 2\pi)}
+	\arrow["\subset", from=1-1, to=1-3]
+	\arrow["\cong", from=1-3, to=2-3]
+	\arrow["\cong", from=1-1, to=2-1]
+	\arrow["\subset"', from=2-1, to=2-3]
+\end{tikzcd}\]
+Since $V_{-1}$ is a proper subspace of $V_0$, we notice that not all $r(w)$ corresponding to $V_{-1}$ can be used as $s(w)$ for $V_0$, we want to characterize when this isn't possible.\\
+
+Let $f \in V_{-1}$, then this is true if and only if
+\[f(t) = \sum_k c_k \varphi(\frac{t}{2} - k), \quad \{c_k\} \in \ell^2\]
+Under the Two-Scale Relation, this is equivalent to
+\[f(t) = \sum_k c_k \sum_j p_j \varphi(t - 2k - j)\]
+This is equivalent to the Fourier Transform
+\begin{align*}
+    \widehat{f}(\omega) &= \sum_k c_j \sum_j p_j e^{-i\omega (2k + j)} \widehat{\varphi}(\omega)\\
+    &= (\sum_k c_k e^{-2iwk})(\sum_j p_j e^{-iwj}) \widehat{\varphi}(\omega)\\
+    &= (s(2\omega))(2 P(\omea)) \widehat{\varphi}(\omega)
+\end{align*}
+where we define $s(2\omega) = \sum_k c_k e^{-2iwk}$ and observe that this is in $L^2_{per}(0, 2\pi)$. We can then identify
+\[V_{-1} = \{f: \widehat{f}(w) = P(w) s(2w) \widehat{\varphi}(w), s \in L^2_{per}(0, 2\pi)\]
+
+\begin{question}
+    In what sense if $V_{-1} \subsetneq V_0$?
+\end{question}
+We have the correspondence
+\begin{itemize}
+    \item $V_0 \iff s_0 \in L^2_{per}(0, 2\pi)$
+    \item $V_{-1} \iff s_{-1}(2\omega) P(w) \in L^2_{per}(0, 2\pi)$. However, we note that $s_{-1}(\omega) \in L_{per}^2(0, \pi)$
+\end{itemize}
+
+\begin{question}
+How to identify $W_{-1}$?
+\end{question}
+
+$W_{-1}$ corresponds to the functons in $L^2_{per}(0, 2\pi)$ that are not of the form $P(w) L^2_{per}(0, \pi)$. Let $g \in W_{-1} \subset V_0$, so we can write
+\[\widehat{g}(w) = r(w) \widehat{\varphi}(w), r \in L^2_{per}(0, 2\pi)\]
+
+Since $W_{-1} \perp V_{-1}$, this means that
+\[0 = \int_{\Rbb} g(t) \overline{f(t)} dt,\quad \forall f \in V_{-1}\]
+By Parserval's Identity, we have that
+\begin{align*}
+    0 &= \int_{\Rbb} r(w) \widehat{\varphi}(w) \overline{P(w)} e^{-2i \ell w} \overline{\widehat{\varphi}(w)} dw \tag*{We wrote $f \in V_{-1}$ as $P(w) e^{2i \ell w}$, which spans $V_{-1}$} \\
+    &= \int_{\Rbb} dw |\widehat{\varphi}(w)|^2 \overline{P}(w) r(w) e^{-2i \ell w}
+\end{align*}
+We know that $\overline{P}(w) r(w)$ and $e^{-2i \ell w}$ are both $2\pi$-periodic, hence
+\begin{align*}
+    &= \sum_{m \in \Zbb} \int_{2m \pi}^{2(m+1)\pi} dw |\widehat{\varphi}(w)|^2 \overline{P(w)} r(w) e^{-2i \ell w}\\
+    &= \sum_{m \in \Zbb} \int_{2m \pi}^{2(m+1)\pi} dw |\widehat{\varphi}(w + 2m\pi)|^2 \overline{P(w)} r(w) e^{-2i \ell w} \tag*{Shift by $2m \pi$}\\
+    &= \int_{0}^{2\pi} dw \overline{P(w)} r(w) e^{-2i \ell w} \tag*{The sum $\sum_m |\widehat{\varphi}(w + 2m\pi)|^2 = 1$}
+\end{align*}
+Hence we have that
+\[0 = \int_{0}^{2\pi} dw \overline{P}(w) r(w) e^{-2i \ell w}\]
+This means that all the even Fourier coefficients of the function
+\[w \mapsto \overline{P(w)} r(w) \text{ vanish}\]
+
+Hence, there exists a function $\mathcal{Z} \in L^2_{per}(0, 2\pi)$ such that
+\[e^{-iw} \overline{P(w)} r(w) = \mathcal{Z}(2w),\quad \forall w \in \Rbb\ (1) \]
+
+Now $\mathcal{Z}$ is $\pi-$periodic, when we replace $w$ with $w + \pi$, we get that
+\[- e^{-iw} \overline{P(w + \pi)} r(w + \pi) = \mathcal{Z}(2w)\quad (2)\]
+
+Observe that $(1)$ means that $\mathcal{Z}(2w)$ has a factor $\overline{P}(w)$ and $(2)$ means that $\mathcal{Z}(2w)$ has a factor $\overline{P}(w + \pi)$.\\
+
+LET's recall we proved the identity on Friday that
+\[1 = |P(w)|^2 + |P(w + \pi)|^2\]
+We know that $P(w)$ and $P(w + \pi)$ can't have common factors, hence
+\[\mathcal{Z}(2w) \propto \overline{P}(w) \overline{P}(w + \pi)\]
+
+Hence, we have that
+\[\mathcal{Z}(2w) = \overline{P}(w) \overline{P}(w + \pi) h(2w)\]
+for some $h(2w)$, its parameter is $2w$ to keep it $\pi$-periodic. Substitute this back into $(1)$, we have that
+\[e^{-iw} \overline{P(w)} r(w) = \overline{P(w)}  \overline{P(w+\pi)} h(2w)\]
+Hence we have that
+\[r(w) = e^{iw} \overline{P(w + \pi)} h(2w)\]
+
+Hence,
+\[W_{-1} = \{g: \widehat{g}(w) = e^{iw} \overline{P(w)} h(2w) \widehat{\varphi}(w), h \in L^2_{per}(0, 2\pi) \}\]
+And we also have previously
+\[V_{-1} = \{f: \widehat{f}(w) = P(w) s(2w) \widehat{\varphi}(w), s \in L^2_{per}(0, 2\pi)\}\]
+
+\begin{remark}
+    In this course, $\varphi$ and $\phi$ are used interchangeably.
+\end{remark}
+
 
 \end{document}
