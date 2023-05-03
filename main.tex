@@ -3080,5 +3080,157 @@ And we also have previously
     In this course, $\varphi$ and $\phi$ are used interchangeably.
 \end{remark}
 
+\newpage
+\section{Lecture 36 - 4/28/2023}
+
+\subsection{Criteria for Selection of a Wavelet}
+
+We constructed the simplest Meyer Wavelet. A general construction is also available:
+\[\]
+Recall the above figure is our construction of $\widehat{\varphi}_M$. However, there is flexibility in the choice of $\widehat{\varphi}_M$ in the transition region $\frac{2\pi}{3} \leq |\omega| \leq \frac{4\pi}{3}$.\\
+
+Meyer chose to define
+\[\widehat{\varphi}_M(w) = \sin \beta(w)\]
+for $|w| \in [\frac{2\pi}{3}, \frac{4\pi}{3}]$ where $\beta$ is chosen so that
+\[\beta(\pm \frac{2\pi}{3}) = \frac{\pi}{2}; \beta(\pm \frac{4\pi}{3}) = \pi\]
+(ie. $\widehat{\varphi}_M$ is continuous).\\
+
+We also need a symmetry property of $\beta$ to ensure that
+\[\sum_{k \in \Zbb} |\widehat{\varphi}_M(w + 2\pi k)|^2 = 1\]
+
+This equality means that we need
+\[\beta(w) + \beta(2\pi - w) = \frac{3\pi}{2}\]
+
+Any such choice of $\beta$ will generate an orthonormal scaling function, e.g. $\beta(w) = \frac{3}{4}|w|$ satisfies the conditions and generate the wavelet from last class.\\
+
+Higher order choices (than linear) would make $\widehat{\varphi}_M$ smoother, ie. $\varphi_M$ would decay more rapidly.\\
+
+Thus, everyone can have their own wavelet.
+
+\begin{question}
+    Which wavelet should we choose? The issue with Meyer is that we have non-compact support, but we can get rapid decay. Is it possible to get compactly supported wavelets? (... is there any real advantages?)
+\end{question}
+
+Let's suppose we have a Wavelet decomposition:
+\[L^2(\Rbb) = \overline{\bigoplus_{n \in \Zbb} W_n}\]
+corresponding to some mother wavelet $\psi$ (orthonormal). Then we know that from previous lectures:
+\[f(t) = \sum_{n \in \Zbb} \sum_{k \in \Zbb} d_k^{(n)} \psi(2^n t - k)\]
+and that
+\[(W_\psi f)(\alpha, a) = \sqrt{a} \int_{-\infty}^{+\infty} f(\alpha + as) \overline{\psi(s)} ds \]
+
+Our goal is that we want $d_k^{(n)}$ to decay rapidly with $n \to \infty$ and we want $d_k^{(n)}$ to indicate local non-smoothness / variation of $f$ around $\alpha = 2^{-n} k$.\\
+
+\begin{question}
+What conditions on $\psi$ would give this?    
+\end{question}
+
+Suppose $f$ is locally smooth or piecewise smooth:
+\[\]
+This means that on each intervals $f$ is smooth and can be well-approximated by some polynomial of degree, say, $\leq M$. Consider the wavelet coefficients
+\[(W_\psi f)(\alpha, a) = \sqrt{a} \int_{-\infty}^{+\infty} f(\alpha + as) \overline{\psi(s)} ds\]
+and $f(\alpha + as)$ is locally polynomial.\\
+
+Suppose $\psi$ is compactly supported say on $[0, L]$:
+\[\]
+Then $f(\alpha + as)$ for $\alpha \in (0, L)$ and $a \to 0$ will be polynomial. So the integrand looks like
+\[\sqrt{a} \int_0^L f(\alpha + as) \overline{\psi(s)} ds\]
+where $f(\alpha + as)$ is approximately polynomial for $s \in [0, L]$.\\
+
+These coefficients will vanish identically if moments of $\psi$ of order from $0$ to $M$ are all zero. In other words, we impose the \textbf{moment condition}:
+\[\int_{-\infty}^{\infty} s^m \psi(s) ds = 0, m = 0, 1, ..., M\]
+
+We also require that the scaling function satisfy $\widehat{\varphi}(0) = 1$, ie. $\int_{-\infty}^{\infty} \varphi(s) ds = 1$ (this was the minimal condition to get an MRA).
+
+\begin{question}
+    Can this be done? How? It's more convenient for us to reformulate these conditions on $P(w)$. 
+\end{question}
+
+Let's recall that
+\[\widehat{\varphi}(2w) = P(w)\widehat{\varphi}(w) \]
+\[\widehat{\psi}(2w) = e^{-iw} \overline{P(w+\pi)} \widehat{\varphi}(w) \]
+
+The condition $\widehat{\varphi}(0) = 1$ gives
+\[P(0) = 1\ (1)\]
+
+Now for the moments constraints. We observe that
+\[\widehat{\psi}(w) = \int_{-\infty}^{\infty} e^{-iwt} \psi(t) dt\]
+
+Then we have that
+\[\widehat{\psi}^{(m)}(w) = \int_{-\infty}^{\infty} (-it)^m e^{-iwt} \psi(t) dt \]
+
+Hence
+\[\widehat{\psi}^{(m)}(0) = \int_{-\infty}^{\infty} (-it)^m \psi(t) dt \]
+
+Hence, $\psi$ has a vanishing moments to order $M$ if and only if
+\[\widehat{\psi}^{(m)}(0) = 0,\quad m = 0, 1, ..., M \]
+
+Now we know that when $w = 0$,
+\[\widehat{\psi}(0) = \overline{P}(\pi) \widehat{\varphi}(0)\]
+Hence we have that
+\[\widehat{\psi}(0) \iff P(\pi) = 0\]
+
+In general we have that
+\[\widehat{\psi}^{(m)}(0) = 0,\quad m = 0, 1, ..., M \iff P^{(m)}(\pi) = 0, \quad m = 0, 1, ..., M\ (2) \]
+
+Also, we want to write $P(w)$ explicitly:
+\[P(w) = \frac{1}{2} \sum_{j} p_j e^{-iwj}, p_j \in \Rbb\]
+
+Conditions $(1)$ and $(2)$ holds if
+\[P(w) = (\frac{1 + e^{-iw}}{2})^M R(w)\]
+where $R(w)$ has real coefficients and $R(0) = 1$.\\
+
+Orthonormiality holds if and only if
+\[|P(w)|^2 + |P(w + \pi)|^2 = 1 \quad (\dagger)\]
+
+Now, we compute that
+\begin{align*}
+    |\frac{1 + e^{-iw}}{2}|^2 &= \frac{(1 + e^{-iw})(1 + e^{iw})}{4}\\
+    &= \frac{1}{2} (1 + \cos(w))\\
+    &= \cos^2(\frac{w}{2})
+\end{align*}
+and we have that
+\[|\frac{1 + e^{-i(w+\pi)}}{2}|^2 = \cos^2 \frac{w + \pi}{2} = \sin^2 \frac{w}{2}\]
+
+The next step is not too intuitive but let's define $x = \sin^2 \frac{w}{2}$, so $\cos^2(w/2) = 1-x$. Let's define
+\[F(x) = |R(w)|^2\]
+So
+\[|R(w+\pi)|^2 = F(\sin^2(w/2)) = F(1 - x)\]
+
+Thus, $(\dagger)$ becomes
+\[(1-x)^M F(x) + x^M F(1 - x) = 1, \forall x\]
+
+\begin{remark}
+    Thus, the question amounts down to choose a polynomial $F$ satsifying the condition
+    \[(1-x)^M F(x) + x^M F(1 - x) = 1, \forall x\]
+\end{remark}
+
+\begin{example}
+    When $M = 1$, we have
+    \[(1-x) F(x) + x F(1 - x) = 1\]
+    In this case we can just choose $F(x) = 1$, hence $|R(w)|^2 = 1$, so take $R(w) = 1$. Hence,
+    \[P(w) = (\frac{1 + e^{-iw}}{2}) = \frac{1}{2}p_0 + \frac{1}{2} p_1 e^{-iw}\]
+    So $p_0 = p_1 = 1$. This gives us back the Haar Wavelet!\\
+
+    When $M = 2$, we have
+    \[(1-x)^2 F(x) + x^2 F(1 - x) = 1\]
+    We can choose $F(x) = 1 + 2x$ here, so
+    \[|R(w)|^2 = 1 + 2 \sin^2(w/2) = 2 - \cos(w) = \frac{-z}{2} + 2 - \frac{\overline{z}}{2} \quad (\star)\]
+    where $z = e^{-iw}$ and $\overline{z} = e^{iw} = 1/z$.\\
+
+    By some magical choice, we can try $R(w) = \frac{z - r}{1 - r}$ so that $R(0) = 1$. Then
+    \begin{align*}
+        |R(w)|^2 &= \frac{z - r}{1 - r} \cdot \frac{\overline{z} - r}{1 - r}\\
+        &= \frac{1 + r^2 - r(z + \overline{z})}{(1 - r)^2}
+    \end{align*}
+    Comparing this with $(\star)$ tells that $r$ has to satisfy
+    \[-r + 4 - \frac{1}{r} = 0\]
+    Hence we have that
+    \[R(w) = \frac{e^{-iw} - r}{1 - r}\]
+    So we have that
+    \begin{align*}
+        P(w) &= 
+    \end{align*}
+    We get Daubechies's $D-4$ Wavelet.
+\end{example}
 
 \end{document}
