@@ -37,14 +37,14 @@ def generate_graph():
         y_img = np.asarray(y_img)
         
         plt.title("Real Part")
-        plt.xlabel("X axis")
-        plt.ylabel("Y axis")
+        plt.xlabel("t axis")
+        plt.ylabel("Real part")
         plt.plot(x, y_real, color ="red")
         plt.show()
         
         plt.title("Imaginary Part")
-        plt.xlabel("X axis")
-        plt.ylabel("Y axis")
+        plt.xlabel("t axis")
+        plt.ylabel("Imaginary part")
         plt.plot(x, y_img, color ="red")
         plt.show()
     
